@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <!-- Seed Permissions -->
+    <changeSet id="070-seed-permissions" author="elektromeistras">
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="SALES_CREATE"/>
+            <column name="description" value="Create sales orders"/>
+            <column name="module" value="SALES"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="SALES_VIEW"/>
+            <column name="description" value="View sales orders"/>
+            <column name="module" value="SALES"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="INVENTORY_MANAGE"/>
+            <column name="description" value="Manage inventory"/>
+            <column name="module" value="INVENTORY"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="CUSTOMER_MANAGE"/>
+            <column name="description" value="Manage customers"/>
+            <column name="module" value="CUSTOMER"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="WAREHOUSE_MANAGE"/>
+            <column name="description" value="Manage warehouse operations"/>
+            <column name="module" value="WAREHOUSE"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="ADMIN_ACCESS"/>
+            <column name="description" value="Admin panel access"/>
+            <column name="module" value="ADMIN"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Roles -->
+    <changeSet id="071-seed-roles" author="elektromeistras">
+        <insert tableName="roles">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="ADMIN"/>
+            <column name="description" value="System Administrator"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="SALES"/>
+            <column name="description" value="Sales Person"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="name" value="WAREHOUSE"/>
+            <column name="description" value="Warehouse Worker"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Default Warehouse -->
+    <changeSet id="072-seed-warehouse" author="elektromeistras">
+        <insert tableName="warehouses">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="WH-01"/>
+            <column name="name" value="Main Warehouse"/>
+            <column name="city" value="Vilnius"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Default Price Group -->
+    <changeSet id="073-seed-price-group" author="elektromeistras">
+        <insert tableName="price_groups">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="STANDARD"/>
+            <column name="name" value="Standard Pricing"/>
+            <column name="discount_percentage" value="0.00"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="price_groups">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CONTRACTOR"/>
+            <column name="name" value="Contractor Pricing"/>
+            <column name="discount_percentage" value="10.00"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="price_groups">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="BUSINESS"/>
+            <column name="name" value="Business Pricing"/>
+            <column name="discount_percentage" value="15.00"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
