@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <!-- Product Indexes -->
+    <changeSet id="060-create-product-indexes" author="elektromeistras">
+        <createIndex tableName="products" indexName="idx_product_sku">
+            <column name="sku"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_ean">
+            <column name="ean"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_category">
+            <column name="category_id"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_manufacturer">
+            <column name="manufacturer_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Customer Indexes -->
+    <changeSet id="061-create-customer-indexes" author="elektromeistras">
+        <createIndex tableName="customers" indexName="idx_customer_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_vat">
+            <column name="vat_code"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_email">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Order Indexes -->
+    <changeSet id="062-create-order-indexes" author="elektromeistras">
+        <createIndex tableName="orders" indexName="idx_order_number">
+            <column name="order_number"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_order_customer">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_order_date">
+            <column name="order_date"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_order_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Stock Indexes -->
+    <changeSet id="063-create-stock-indexes" author="elektromeistras">
+        <createIndex tableName="product_stock" indexName="idx_stock_product">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="product_stock" indexName="idx_stock_warehouse">
+            <column name="warehouse_id"/>
+        </createIndex>
+        <createIndex tableName="product_stock" indexName="idx_stock_location">
+            <column name="location_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Invoice and Payment Indexes -->
+    <changeSet id="064-create-invoice-payment-indexes" author="elektromeistras">
+        <createIndex tableName="invoices" indexName="idx_invoice_number">
+            <column name="invoice_number"/>
+        </createIndex>
+        <createIndex tableName="invoices" indexName="idx_invoice_customer">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="invoices" indexName="idx_invoice_date">
+            <column name="invoice_date"/>
+        </createIndex>
+        <createIndex tableName="invoices" indexName="idx_invoice_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="payments" indexName="idx_payment_customer">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="payments" indexName="idx_payment_invoice">
+            <column name="invoice_id"/>
+        </createIndex>
+        <createIndex tableName="payments" indexName="idx_payment_date">
+            <column name="payment_date"/>
+        </createIndex>
+        <createIndex tableName="payments" indexName="idx_payment_matched">
+            <column name="matched"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Warehouse Indexes -->
+    <changeSet id="065-create-warehouse-indexes" author="elektromeistras">
+        <createIndex tableName="warehouse_locations" indexName="idx_location_warehouse">
+            <column name="warehouse_id"/>
+        </createIndex>
+        <createIndex tableName="warehouse_locations" indexName="idx_location_zone">
+            <column name="zone"/>
+        </createIndex>
+        <createIndex tableName="picking_waves" indexName="idx_wave_number">
+            <column name="wave_number"/>
+        </createIndex>
+        <createIndex tableName="picking_waves" indexName="idx_wave_warehouse">
+            <column name="warehouse_id"/>
+        </createIndex>
+        <createIndex tableName="picking_waves" indexName="idx_wave_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="picking_tasks" indexName="idx_task_wave">
+            <column name="wave_id"/>
+        </createIndex>
+        <createIndex tableName="picking_tasks" indexName="idx_task_order">
+            <column name="order_id"/>
+        </createIndex>
+        <createIndex tableName="picking_tasks" indexName="idx_task_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- User Indexes -->
+    <changeSet id="066-create-user-indexes" author="elektromeistras">
+        <createIndex tableName="users" indexName="idx_user_username">
+            <column name="username"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_user_email">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
