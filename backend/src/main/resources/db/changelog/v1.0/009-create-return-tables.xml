@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <!-- Return Reasons Table -->
+    <changeSet id="009-1" author="claude">
+        <createTable tableName="return_reasons">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="requires_inspection" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="allows_restock" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="version" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Returns Table -->
+    <changeSet id="009-2" author="claude">
+        <createTable tableName="returns">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="return_number" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="order_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_order" references="orders(id)"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_customer" references="customers(id)"/>
+            </column>
+            <column name="warehouse_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_warehouse" references="warehouses(id)"/>
+            </column>
+            <column name="status" type="VARCHAR(50)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="return_type" type="VARCHAR(50)" defaultValue="FULL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="return_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expected_date" type="TIMESTAMP"/>
+            <column name="received_date" type="TIMESTAMP"/>
+            <column name="inspected_date" type="TIMESTAMP"/>
+            <column name="completed_date" type="TIMESTAMP"/>
+            <column name="subtotal_amount" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax_amount" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refund_amount" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refund_method" type="VARCHAR(50)"/>
+            <column name="refund_status" type="VARCHAR(50)" defaultValue="PENDING"/>
+            <column name="refund_date" type="TIMESTAMP"/>
+            <column name="refund_reference" type="VARCHAR(255)"/>
+            <column name="notes" type="TEXT"/>
+            <column name="internal_notes" type="TEXT"/>
+            <column name="rejection_reason" type="TEXT"/>
+            <column name="requested_by" type="UUID">
+                <constraints foreignKeyName="fk_return_requested_by" references="users(id)"/>
+            </column>
+            <column name="approved_by" type="UUID">
+                <constraints foreignKeyName="fk_return_approved_by" references="users(id)"/>
+            </column>
+            <column name="inspected_by" type="UUID">
+                <constraints foreignKeyName="fk_return_inspected_by" references="users(id)"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="version" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Return Lines Table -->
+    <changeSet id="009-3" author="claude">
+        <createTable tableName="return_lines">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="return_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_line_return" references="returns(id)" deleteCascade="true"/>
+            </column>
+            <column name="order_line_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_line_order_line" references="order_lines(id)"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_line_product" references="products(id)"/>
+            </column>
+            <column name="return_reason_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_return_line_reason" references="return_reasons(id)"/>
+            </column>
+            <column name="quantity_ordered" type="DECIMAL(19,3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity_returned" type="DECIMAL(19,3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity_accepted" type="DECIMAL(19,3)" defaultValue="0.000"/>
+            <column name="quantity_rejected" type="DECIMAL(19,3)" defaultValue="0.000"/>
+            <column name="condition" type="VARCHAR(50)" defaultValue="UNKNOWN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_percentage" type="DECIMAL(5,2)" defaultValue="0.00"/>
+            <column name="tax_rate" type="DECIMAL(5,2)" defaultValue="0.00"/>
+            <column name="line_total" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refund_amount" type="DECIMAL(19,2)" defaultValue="0.00"/>
+            <column name="restock_eligible" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restocked" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restocked_date" type="TIMESTAMP"/>
+            <column name="warehouse_location_id" type="UUID">
+                <constraints foreignKeyName="fk_return_line_location" references="warehouse_locations(id)"/>
+            </column>
+            <column name="notes" type="TEXT"/>
+            <column name="inspection_notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+            <column name="version" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Indexes for Returns -->
+    <changeSet id="009-4" author="claude">
+        <createIndex tableName="returns" indexName="idx_return_number">
+            <column name="return_number"/>
+        </createIndex>
+        <createIndex tableName="returns" indexName="idx_return_order_id">
+            <column name="order_id"/>
+        </createIndex>
+        <createIndex tableName="returns" indexName="idx_return_customer_id">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="returns" indexName="idx_return_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="returns" indexName="idx_return_date">
+            <column name="return_date"/>
+        </createIndex>
+        <createIndex tableName="returns" indexName="idx_refund_status">
+            <column name="refund_status"/>
+        </createIndex>
+
+        <createIndex tableName="return_lines" indexName="idx_return_line_return_id">
+            <column name="return_id"/>
+        </createIndex>
+        <createIndex tableName="return_lines" indexName="idx_return_line_product_id">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="return_lines" indexName="idx_return_line_condition">
+            <column name="condition"/>
+        </createIndex>
+        <createIndex tableName="return_lines" indexName="idx_return_line_restocked">
+            <column name="restocked"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Seed Return Reasons -->
+    <changeSet id="009-5" author="claude">
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="WRONG_ITEM"/>
+            <column name="name" value="Wrong Item Received"/>
+            <column name="description" value="Customer received incorrect product"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="DEFECTIVE"/>
+            <column name="name" value="Defective Product"/>
+            <column name="description" value="Product is defective or not working properly"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="DAMAGED"/>
+            <column name="name" value="Damaged in Transit"/>
+            <column name="description" value="Product was damaged during shipping"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="NOT_NEEDED"/>
+            <column name="name" value="No Longer Needed"/>
+            <column name="description" value="Customer no longer needs the product"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="NOT_AS_DESCRIBED"/>
+            <column name="name" value="Not As Described"/>
+            <column name="description" value="Product does not match description"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="BETTER_PRICE"/>
+            <column name="name" value="Found Better Price"/>
+            <column name="description" value="Customer found better price elsewhere"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="QUALITY_ISSUE"/>
+            <column name="name" value="Quality Issues"/>
+            <column name="description" value="Product quality does not meet expectations"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CHANGED_MIND"/>
+            <column name="name" value="Changed Mind"/>
+            <column name="description" value="Customer changed their mind"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="WARRANTY"/>
+            <column name="name" value="Warranty Claim"/>
+            <column name="description" value="Product under warranty needs replacement or repair"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="false"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="return_reasons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="OTHER"/>
+            <column name="name" value="Other Reason"/>
+            <column name="description" value="Other reason not listed"/>
+            <column name="requires_inspection" valueBoolean="true"/>
+            <column name="allows_restock" valueBoolean="true"/>
+            <column name="active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
