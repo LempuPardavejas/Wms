@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Product Categories -->
+    <changeSet id="002-001-create-product-categories" author="claude">
+        <createTable tableName="product_categories">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_id" type="UUID">
+                <constraints foreignKeyName="fk_category_parent" references="product_categories(id)"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="product_categories" indexName="idx_category_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="product_categories" indexName="idx_category_active">
+            <column name="is_active"/>
+        </createIndex>
+        <createIndex tableName="product_categories" indexName="idx_category_parent">
+            <column name="parent_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Manufacturers -->
+    <changeSet id="002-002-create-manufacturers" author="claude">
+        <createTable tableName="manufacturers">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="VARCHAR(100)"/>
+            <column name="website" type="VARCHAR(255)"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="manufacturers" indexName="idx_manufacturer_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="manufacturers" indexName="idx_manufacturer_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Products -->
+    <changeSet id="002-003-create-products" author="claude">
+        <createTable tableName="products">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="sku" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="ean" type="VARCHAR(50)"/>
+            <column name="name" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="category_id" type="UUID">
+                <constraints foreignKeyName="fk_product_category" references="product_categories(id)"/>
+            </column>
+            <column name="manufacturer_id" type="UUID">
+                <constraints foreignKeyName="fk_product_manufacturer" references="manufacturers(id)"/>
+            </column>
+            <column name="unit_of_measure" type="VARCHAR(20)" defaultValue="PCS">
+                <constraints nullable="false"/>
+            </column>
+            <column name="base_price" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cost_price" type="DECIMAL(19,2)"/>
+            <column name="tax_rate" type="DECIMAL(5,2)" defaultValue="21.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_cable" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_modular" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module_width" type="DECIMAL(5,2)"/>
+            <column name="weight" type="DECIMAL(10,3)"/>
+            <column name="image_url" type="VARCHAR(500)"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_stock_level" type="DECIMAL(19,3)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Critical indexes for FAST search by code and name -->
+        <createIndex tableName="products" indexName="idx_product_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_sku">
+            <column name="sku"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_ean">
+            <column name="ean"/>
+        </createIndex>
+        <!-- Full-text search index for name - critical for fast autocomplete -->
+        <createIndex tableName="products" indexName="idx_product_name">
+            <column name="name"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_active">
+            <column name="is_active"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_category">
+            <column name="category_id"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_product_is_cable">
+            <column name="is_cable"/>
+        </createIndex>
+        <!-- Composite index for active products search - PERFORMANCE OPTIMIZATION -->
+        <createIndex tableName="products" indexName="idx_product_active_code">
+            <column name="is_active"/>
+            <column name="code"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Price Groups for customer-specific pricing -->
+    <changeSet id="002-004-create-price-groups" author="claude">
+        <createTable tableName="price_groups">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_percentage" type="DECIMAL(5,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="price_groups" indexName="idx_price_group_code">
+            <column name="code"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Product Prices by Price Group -->
+    <changeSet id="002-005-create-product-prices" author="claude">
+        <createTable tableName="product_prices">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_product_price_product" references="products(id)"/>
+            </column>
+            <column name="price_group_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_product_price_group" references="price_groups(id)"/>
+            </column>
+            <column name="price" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valid_from" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valid_to" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="product_prices" indexName="idx_product_price_product">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="product_prices" indexName="idx_product_price_group">
+            <column name="price_group_id"/>
+        </createIndex>
+        <createIndex tableName="product_prices" indexName="idx_product_price_dates">
+            <column name="valid_from"/>
+            <column name="valid_to"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Seed Data: Default Categories -->
+    <changeSet id="002-006-seed-product-categories" author="claude">
+        <insert tableName="product_categories">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CABLES"/>
+            <column name="name" value="Kabeliai ir laidai"/>
+            <column name="description" value="Elektros kabeliai, laidai ir instaliacinė medžiaga"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="product_categories">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="MODULAR"/>
+            <column name="name" value="Modulinė įranga"/>
+            <column name="description" value="Automatiniai jungikliai, relės, kontaktoriai"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="product_categories">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="LIGHTING"/>
+            <column name="name" value="Apšvietimas"/>
+            <column name="description" value="LED lempos, šviestuv ai, priedai"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="product_categories">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="SOCKETS"/>
+            <column name="name" value="Lizdai ir jungikliai"/>
+            <column name="description" value="Elektros lizdai, jungikliai, rėmeliai"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="product_categories">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="TOOLS"/>
+            <column name="name" value="Įrankiai"/>
+            <column name="description" value="Elektrikų įrankiai ir prietaisai"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Sample Manufacturers -->
+    <changeSet id="002-007-seed-manufacturers" author="claude">
+        <insert tableName="manufacturers">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="ABB"/>
+            <column name="name" value="ABB"/>
+            <column name="country" value="Šveicarija"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="manufacturers">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="SCHNEIDER"/>
+            <column name="name" value="Schneider Electric"/>
+            <column name="country" value="Prancūzija"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="manufacturers">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="LEGRAND"/>
+            <column name="name" value="Legrand"/>
+            <column name="country" value="Prancūzija"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Sample Products including cable 0010006 -->
+    <changeSet id="002-008-seed-sample-products" author="claude">
+        <!-- Cable YDYP 3x1.5 with code 0010006 as per user request -->
+        <insert tableName="products">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="0010006"/>
+            <column name="sku" value="CABLE-YDYP-3X1.5"/>
+            <column name="name" value="Kabelis YDYP 3x1.5"/>
+            <column name="description" value="Instaliacinis kabelis YDYP 3x1.5 mm², 3 gyslų"/>
+            <column name="category_id" valueComputed="(SELECT id FROM product_categories WHERE code = 'CABLES' LIMIT 1)"/>
+            <column name="unit_of_measure" value="M"/>
+            <column name="base_price" value="1.25"/>
+            <column name="cost_price" value="0.85"/>
+            <column name="tax_rate" value="21.00"/>
+            <column name="is_cable" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="min_stock_level" value="500"/>
+        </insert>
+
+        <!-- More sample cables -->
+        <insert tableName="products">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="0010007"/>
+            <column name="sku" value="CABLE-YDYP-3X2.5"/>
+            <column name="name" value="Kabelis YDYP 3x2.5"/>
+            <column name="description" value="Instaliacinis kabelis YDYP 3x2.5 mm², 3 gyslų"/>
+            <column name="category_id" valueComputed="(SELECT id FROM product_categories WHERE code = 'CABLES' LIMIT 1)"/>
+            <column name="unit_of_measure" value="M"/>
+            <column name="base_price" value="1.85"/>
+            <column name="cost_price" value="1.25"/>
+            <column name="tax_rate" value="21.00"/>
+            <column name="is_cable" valueBoolean="true"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="min_stock_level" value="500"/>
+        </insert>
+
+        <insert tableName="products">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="0020001"/>
+            <column name="sku" value="MCB-ABB-C16-1P"/>
+            <column name="name" value="Automatinis jungiklis ABB S201 C16 1P"/>
+            <column name="description" value="Modulinis automatinis jungiklis 16A, 1 polius, C kreivė"/>
+            <column name="category_id" valueComputed="(SELECT id FROM product_categories WHERE code = 'MODULAR' LIMIT 1)"/>
+            <column name="manufacturer_id" valueComputed="(SELECT id FROM manufacturers WHERE code = 'ABB' LIMIT 1)"/>
+            <column name="unit_of_measure" value="PCS"/>
+            <column name="base_price" value="8.50"/>
+            <column name="cost_price" value="5.20"/>
+            <column name="tax_rate" value="21.00"/>
+            <column name="is_modular" valueBoolean="true"/>
+            <column name="module_width" value="1"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="min_stock_level" value="50"/>
+        </insert>
+
+        <insert tableName="products">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="0030001"/>
+            <column name="sku" value="LED-BULB-E27-10W"/>
+            <column name="name" value="LED lempa E27 10W 4000K"/>
+            <column name="description" value="LED lempa, E27 cokolio, 10W, neutrali šviesa 4000K"/>
+            <column name="category_id" valueComputed="(SELECT id FROM product_categories WHERE code = 'LIGHTING' LIMIT 1)"/>
+            <column name="unit_of_measure" value="PCS"/>
+            <column name="base_price" value="4.50"/>
+            <column name="cost_price" value="2.80"/>
+            <column name="tax_rate" value="21.00"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="min_stock_level" value="100"/>
+        </insert>
+    </changeSet>
+
+    <!-- Default Price Group -->
+    <changeSet id="002-009-seed-default-price-group" author="claude">
+        <insert tableName="price_groups">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="STANDARD"/>
+            <column name="name" value="Standartinė kaina"/>
+            <column name="discount_percentage" value="0.00"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="price_groups">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="WHOLESALE"/>
+            <column name="name" value="Didmeninė kaina"/>
+            <column name="discount_percentage" value="15.00"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="price_groups">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CONTRACTOR"/>
+            <column name="name" value="Rangovų kaina"/>
+            <column name="discount_percentage" value="10.00"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

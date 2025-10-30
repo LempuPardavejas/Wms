@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Users -->
+    <changeSet id="001-001-create-users" author="claude">
+        <createTable tableName="users">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(100)"/>
+            <column name="last_name" type="VARCHAR(100)"/>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_login_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="users" indexName="idx_user_username">
+            <column name="username"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_user_email">
+            <column name="email"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_user_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Roles -->
+    <changeSet id="001-002-create-roles" author="claude">
+        <createTable tableName="roles">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="roles" indexName="idx_role_code">
+            <column name="code"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- User Roles (Many-to-Many) -->
+    <changeSet id="001-003-create-user-roles" author="claude">
+        <createTable tableName="user_roles">
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_user_role_user" references="users(id)" deleteCascade="true"/>
+            </column>
+            <column name="role_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_user_role_role" references="roles(id)" deleteCascade="true"/>
+            </column>
+            <column name="assigned_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="user_roles" columnNames="user_id, role_id" constraintName="pk_user_roles"/>
+
+        <createIndex tableName="user_roles" indexName="idx_user_role_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="user_roles" indexName="idx_user_role_role">
+            <column name="role_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Permissions -->
+    <changeSet id="001-004-create-permissions" author="claude">
+        <createTable tableName="permissions">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="category" type="VARCHAR(50)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="permissions" indexName="idx_permission_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="permissions" indexName="idx_permission_category">
+            <column name="category"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Role Permissions (Many-to-Many) -->
+    <changeSet id="001-005-create-role-permissions" author="claude">
+        <createTable tableName="role_permissions">
+            <column name="role_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_role_permission_role" references="roles(id)" deleteCascade="true"/>
+            </column>
+            <column name="permission_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_role_permission_permission" references="permissions(id)" deleteCascade="true"/>
+            </column>
+            <column name="granted_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="role_permissions" columnNames="role_id, permission_id" constraintName="pk_role_permissions"/>
+
+        <createIndex tableName="role_permissions" indexName="idx_role_permission_role">
+            <column name="role_id"/>
+        </createIndex>
+        <createIndex tableName="role_permissions" indexName="idx_role_permission_permission">
+            <column name="permission_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Seed Data: Permissions -->
+    <changeSet id="001-006-seed-permissions" author="claude">
+        <!-- Inventory Permissions -->
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="INVENTORY_VIEW"/>
+            <column name="name" value="Peržiūrėti atsargas"/>
+            <column name="category" value="INVENTORY"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="INVENTORY_MANAGE"/>
+            <column name="name" value="Valdyti atsargas"/>
+            <column name="category" value="INVENTORY"/>
+        </insert>
+
+        <!-- Sales Permissions -->
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="SALES_VIEW"/>
+            <column name="name" value="Peržiūrėti pardavimus"/>
+            <column name="category" value="SALES"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="SALES_CREATE"/>
+            <column name="name" value="Kurti pardavimus"/>
+            <column name="category" value="SALES"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="SALES_EDIT"/>
+            <column name="name" value="Redaguoti pardavimus"/>
+            <column name="category" value="SALES"/>
+        </insert>
+
+        <!-- Customer Permissions -->
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CUSTOMER_VIEW"/>
+            <column name="name" value="Peržiūrėti klientus"/>
+            <column name="category" value="CUSTOMER"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CUSTOMER_MANAGE"/>
+            <column name="name" value="Valdyti klientus"/>
+            <column name="category" value="CUSTOMER"/>
+        </insert>
+
+        <!-- Product Permissions -->
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="PRODUCT_VIEW"/>
+            <column name="name" value="Peržiūrėti prekes"/>
+            <column name="category" value="PRODUCT"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="PRODUCT_MANAGE"/>
+            <column name="name" value="Valdyti prekes"/>
+            <column name="category" value="PRODUCT"/>
+        </insert>
+
+        <!-- Admin Permissions -->
+        <insert tableName="permissions">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="ADMIN_FULL"/>
+            <column name="name" value="Pilna administratoriaus prieiga"/>
+            <column name="category" value="ADMIN"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Roles -->
+    <changeSet id="001-007-seed-roles" author="claude">
+        <insert tableName="roles">
+            <column name="id" value="eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"/>
+            <column name="code" value="ADMIN"/>
+            <column name="name" value="Administratorius"/>
+            <column name="description" value="Pilna sistemos prieiga"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="code" value="SALES"/>
+            <column name="name" value="Pardavėjas"/>
+            <column name="description" value="Pardavimų ir klientų valdymas"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="WAREHOUSE"/>
+            <column name="name" value="Sandėlio darbuotojas"/>
+            <column name="description" value="Atsargų valdymas"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Role Permissions -->
+    <changeSet id="001-008-seed-role-permissions" author="claude">
+        <!-- Admin gets all permissions -->
+        <insert tableName="role_permissions">
+            <column name="role_id" value="eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'ADMIN_FULL' LIMIT 1)"/>
+        </insert>
+
+        <!-- Sales gets sales, customer, and product view permissions -->
+        <insert tableName="role_permissions">
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'SALES_VIEW' LIMIT 1)"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'SALES_CREATE' LIMIT 1)"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'SALES_EDIT' LIMIT 1)"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'CUSTOMER_VIEW' LIMIT 1)"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'CUSTOMER_MANAGE' LIMIT 1)"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'PRODUCT_VIEW' LIMIT 1)"/>
+        </insert>
+
+        <!-- Warehouse gets inventory permissions -->
+        <insert tableName="role_permissions">
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE code = 'WAREHOUSE' LIMIT 1)"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'INVENTORY_VIEW' LIMIT 1)"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE code = 'WAREHOUSE' LIMIT 1)"/>
+            <column name="permission_id" valueComputed="(SELECT id FROM permissions WHERE code = 'INVENTORY_MANAGE' LIMIT 1)"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Default Admin User -->
+    <changeSet id="001-009-seed-default-user" author="claude">
+        <!-- Password: admin123 (BCrypt hash) -->
+        <insert tableName="users">
+            <column name="id" value="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"/>
+            <column name="username" value="admin"/>
+            <column name="email" value="admin@elektromeistras.lt"/>
+            <column name="password_hash" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/>
+            <column name="first_name" value="Administratorius"/>
+            <column name="last_name" value="Sistema"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+
+        <!-- Assign admin role -->
+        <insert tableName="user_roles">
+            <column name="user_id" value="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"/>
+            <column name="role_id" value="eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

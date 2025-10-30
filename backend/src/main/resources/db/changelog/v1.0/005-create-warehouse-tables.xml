@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Warehouses -->
+    <changeSet id="005-001-create-warehouses" author="claude">
+        <createTable tableName="warehouses">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="warehouse_type" type="VARCHAR(20)" defaultValue="MAIN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(500)"/>
+            <column name="city" type="VARCHAR(100)"/>
+            <column name="postal_code" type="VARCHAR(20)"/>
+            <column name="country" type="VARCHAR(100)" defaultValue="Lietuva"/>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="manager_id" type="UUID"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="warehouses" indexName="idx_warehouse_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="warehouses" indexName="idx_warehouse_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Warehouse Locations -->
+    <changeSet id="005-002-create-warehouse-locations" author="claude">
+        <createTable tableName="warehouse_locations">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="warehouse_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_location_warehouse" references="warehouses(id)"/>
+            </column>
+            <column name="location_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="aisle" type="VARCHAR(20)"/>
+            <column name="row" type="VARCHAR(20)"/>
+            <column name="bin" type="VARCHAR(20)"/>
+            <column name="level" type="VARCHAR(20)"/>
+            <column name="location_type" type="VARCHAR(20)" defaultValue="SHELF">
+                <constraints nullable="false"/>
+            </column>
+            <column name="capacity" type="DECIMAL(19,3)"/>
+            <column name="current_quantity" type="DECIMAL(19,3)" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="warehouse_locations" indexName="idx_location_warehouse">
+            <column name="warehouse_id"/>
+        </createIndex>
+        <createIndex tableName="warehouse_locations" indexName="idx_location_code">
+            <column name="location_code"/>
+        </createIndex>
+        <createIndex tableName="warehouse_locations" indexName="idx_location_aisle">
+            <column name="aisle"/>
+        </createIndex>
+        <!-- Unique constraint for warehouse + location code -->
+        <addUniqueConstraint tableName="warehouse_locations"
+                           columnNames="warehouse_id, location_code"
+                           constraintName="uq_warehouse_location_code"/>
+    </changeSet>
+
+    <!-- Product Stock -->
+    <changeSet id="005-003-create-product-stock" author="claude">
+        <createTable tableName="product_stock">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_stock_product" references="products(id)"/>
+            </column>
+            <column name="warehouse_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_stock_warehouse" references="warehouses(id)"/>
+            </column>
+            <column name="location_id" type="UUID">
+                <constraints foreignKeyName="fk_stock_location" references="warehouse_locations(id)"/>
+            </column>
+            <!-- Quantities -->
+            <column name="quantity" type="DECIMAL(19,3)" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reserved_quantity" type="DECIMAL(19,3)" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available_quantity" type="DECIMAL(19,3)" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Cable roll tracking -->
+            <column name="roll_id" type="UUID"/>
+            <column name="roll_number" type="VARCHAR(50)"/>
+            <column name="roll_original_length" type="DECIMAL(19,3)"/>
+            <column name="roll_current_length" type="DECIMAL(19,3)"/>
+            <!-- Tracking -->
+            <column name="last_counted_date" type="TIMESTAMP"/>
+            <column name="last_counted_quantity" type="DECIMAL(19,3)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Critical indexes for FAST stock queries -->
+        <createIndex tableName="product_stock" indexName="idx_stock_product">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="product_stock" indexName="idx_stock_warehouse">
+            <column name="warehouse_id"/>
+        </createIndex>
+        <createIndex tableName="product_stock" indexName="idx_stock_location">
+            <column name="location_id"/>
+        </createIndex>
+        <createIndex tableName="product_stock" indexName="idx_stock_roll">
+            <column name="roll_id"/>
+        </createIndex>
+        <!-- Composite index for product + warehouse - PERFORMANCE OPTIMIZATION -->
+        <createIndex tableName="product_stock" indexName="idx_stock_product_warehouse">
+            <column name="product_id"/>
+            <column name="warehouse_id"/>
+        </createIndex>
+        <!-- Unique constraint for product + warehouse + location (non-cable) -->
+        <addUniqueConstraint tableName="product_stock"
+                           columnNames="product_id, warehouse_id, location_id"
+                           constraintName="uq_stock_product_warehouse_location"/>
+    </changeSet>
+
+    <!-- Stock Movement History -->
+    <changeSet id="005-004-create-stock-movements" author="claude">
+        <createTable tableName="stock_movements">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_movement_product" references="products(id)"/>
+            </column>
+            <column name="warehouse_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_movement_warehouse" references="warehouses(id)"/>
+            </column>
+            <column name="location_id" type="UUID">
+                <constraints foreignKeyName="fk_movement_location" references="warehouse_locations(id)"/>
+            </column>
+            <column name="movement_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reference_type" type="VARCHAR(50)"/>
+            <column name="reference_id" type="UUID"/>
+            <column name="quantity" type="DECIMAL(19,3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity_before" type="DECIMAL(19,3)"/>
+            <column name="quantity_after" type="DECIMAL(19,3)"/>
+            <column name="unit_cost" type="DECIMAL(19,2)"/>
+            <column name="total_cost" type="DECIMAL(19,2)"/>
+            <column name="user_id" type="UUID"/>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="stock_movements" indexName="idx_movement_product">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="stock_movements" indexName="idx_movement_warehouse">
+            <column name="warehouse_id"/>
+        </createIndex>
+        <createIndex tableName="stock_movements" indexName="idx_movement_type">
+            <column name="movement_type"/>
+        </createIndex>
+        <createIndex tableName="stock_movements" indexName="idx_movement_reference">
+            <column name="reference_type"/>
+            <column name="reference_id"/>
+        </createIndex>
+        <createIndex tableName="stock_movements" indexName="idx_movement_date">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Seed Data: Default Warehouse -->
+    <changeSet id="005-005-seed-default-warehouse" author="claude">
+        <insert tableName="warehouses">
+            <column name="id" value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"/>
+            <column name="code" value="WH-001"/>
+            <column name="name" value="Pagrindinis sandėlis"/>
+            <column name="warehouse_type" value="MAIN"/>
+            <column name="address" value="Pramonės g. 10"/>
+            <column name="city" value="Vilnius"/>
+            <column name="postal_code" value="02190"/>
+            <column name="country" value="Lietuva"/>
+            <column name="phone" value="+37052999999"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+
+        <!-- Sample locations -->
+        <insert tableName="warehouse_locations">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="warehouse_id" value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"/>
+            <column name="location_code" value="A-01-01"/>
+            <column name="aisle" value="A"/>
+            <column name="row" value="01"/>
+            <column name="bin" value="01"/>
+            <column name="location_type" value="SHELF"/>
+            <column name="capacity" value="1000"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+
+        <insert tableName="warehouse_locations">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="warehouse_id" value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"/>
+            <column name="location_code" value="A-01-02"/>
+            <column name="aisle" value="A"/>
+            <column name="row" value="01"/>
+            <column name="bin" value="02"/>
+            <column name="location_type" value="SHELF"/>
+            <column name="capacity" value="1000"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Sample Stock -->
+    <changeSet id="005-006-seed-sample-stock" author="claude">
+        <!-- Stock for cable 0010006 -->
+        <insert tableName="product_stock">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="product_id" valueComputed="(SELECT id FROM products WHERE code = '0010006' LIMIT 1)"/>
+            <column name="warehouse_id" value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"/>
+            <column name="location_id" valueComputed="(SELECT id FROM warehouse_locations WHERE location_code = 'A-01-01' LIMIT 1)"/>
+            <column name="quantity" value="500"/>
+            <column name="reserved_quantity" value="0"/>
+            <column name="available_quantity" value="500"/>
+            <column name="roll_id" valueComputed="gen_random_uuid()"/>
+            <column name="roll_number" value="ROLL-001"/>
+            <column name="roll_original_length" value="500"/>
+            <column name="roll_current_length" value="500"/>
+        </insert>
+
+        <!-- Stock for modular device -->
+        <insert tableName="product_stock">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="product_id" valueComputed="(SELECT id FROM products WHERE code = '0020001' LIMIT 1)"/>
+            <column name="warehouse_id" value="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"/>
+            <column name="location_id" valueComputed="(SELECT id FROM warehouse_locations WHERE location_code = 'A-01-02' LIMIT 1)"/>
+            <column name="quantity" value="150"/>
+            <column name="reserved_quantity" value="0"/>
+            <column name="available_quantity" value="150"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
