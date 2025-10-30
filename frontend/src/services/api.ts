@@ -45,28 +45,46 @@ export const authService = {
 export const productService = {
   getAll: (params?: any) => api.get('/products', { params }),
   getById: (id: string) => api.get(`/products/${id}`),
+  getByCode: (code: string) => api.get(`/products/code/${code}`),
   search: (query: string, params?: any) =>
     api.get('/products/search', { params: { q: query, ...params } }),
+  searchByCodePrefix: (codePrefix: string) =>
+    api.get('/products/search', { params: { q: codePrefix } }),
   create: (data: any) => api.post('/products', data),
   update: (id: string, data: any) => api.put(`/products/${id}`, data),
+  delete: (id: string) => api.delete(`/products/${id}`),
 };
 
 export const orderService = {
   getAll: (params?: any) => api.get('/orders', { params }),
   getById: (id: string) => api.get(`/orders/${id}`),
+  getByOrderNumber: (orderNumber: string) => api.get(`/orders/number/${orderNumber}`),
+  getByCustomerId: (customerId: string, params?: any) =>
+    api.get(`/orders/customer/${customerId}`, { params }),
+  getCompletedByCustomerId: (customerId: string) =>
+    api.get(`/orders/customer/${customerId}/completed`),
+  search: (query: string, params?: any) =>
+    api.get('/orders/search', { params: { q: query, ...params } }),
   create: (data: any) => api.post('/orders', data),
+  createQuick: (data: any) => api.post('/orders/quick', data),
   confirm: (id: string) => api.post(`/orders/${id}/confirm`),
-  cancel: (id: string) => api.post(`/orders/${id}/cancel`),
+  cancel: (id: string, reason?: string) =>
+    api.post(`/orders/${id}/cancel`, reason),
   complete: (id: string) => api.post(`/orders/${id}/complete`),
+  update: (id: string, data: any) => api.put(`/orders/${id}`, data),
 };
 
 export const customerService = {
   getAll: (params?: any) => api.get('/customers', { params }),
   getById: (id: string) => api.get(`/customers/${id}`),
+  getByCode: (code: string) => api.get(`/customers/code/${code}`),
   search: (query: string, params?: any) =>
     api.get('/customers/search', { params: { q: query, ...params } }),
+  searchByCodePrefix: (codePrefix: string) =>
+    api.get('/customers/search', { params: { q: codePrefix } }),
   create: (data: any) => api.post('/customers', data),
   update: (id: string, data: any) => api.put(`/customers/${id}`, data),
+  delete: (id: string) => api.delete(`/customers/${id}`),
 };
 
 export const returnService = {

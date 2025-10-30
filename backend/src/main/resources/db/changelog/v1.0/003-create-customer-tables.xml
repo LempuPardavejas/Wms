@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Customers -->
+    <changeSet id="003-001-create-customers" author="claude">
+        <createTable tableName="customers">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="customer_type" type="VARCHAR(20)" defaultValue="RETAIL">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Business fields -->
+            <column name="company_name" type="VARCHAR(500)"/>
+            <column name="vat_code" type="VARCHAR(50)"/>
+            <column name="company_code" type="VARCHAR(50)"/>
+            <!-- Individual fields -->
+            <column name="first_name" type="VARCHAR(100)"/>
+            <column name="last_name" type="VARCHAR(100)"/>
+            <!-- Contact -->
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="mobile" type="VARCHAR(50)"/>
+            <!-- Address -->
+            <column name="address" type="VARCHAR(500)"/>
+            <column name="city" type="VARCHAR(100)"/>
+            <column name="postal_code" type="VARCHAR(20)"/>
+            <column name="country" type="VARCHAR(100)" defaultValue="Lietuva">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Business -->
+            <column name="price_group_id" type="UUID">
+                <constraints foreignKeyName="fk_customer_price_group" references="price_groups(id)"/>
+            </column>
+            <column name="credit_limit" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_balance" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_terms_days" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Status -->
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Critical indexes for FAST customer search -->
+        <createIndex tableName="customers" indexName="idx_customer_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_email">
+            <column name="email"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_phone">
+            <column name="phone"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_vat">
+            <column name="vat_code"/>
+        </createIndex>
+        <!-- Full-text search indexes for name - CRITICAL for autocomplete -->
+        <createIndex tableName="customers" indexName="idx_customer_company_name">
+            <column name="company_name"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_last_name">
+            <column name="last_name"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_type">
+            <column name="customer_type"/>
+        </createIndex>
+        <createIndex tableName="customers" indexName="idx_customer_active">
+            <column name="is_active"/>
+        </createIndex>
+        <!-- Composite index for active customers search - PERFORMANCE OPTIMIZATION -->
+        <createIndex tableName="customers" indexName="idx_customer_active_type">
+            <column name="is_active"/>
+            <column name="customer_type"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Customer Projects/Objects -->
+    <changeSet id="003-002-create-customer-projects" author="claude">
+        <createTable tableName="customer_projects">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_project_customer" references="customers(id)"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="address" type="VARCHAR(500)"/>
+            <column name="city" type="VARCHAR(100)"/>
+            <column name="postal_code" type="VARCHAR(20)"/>
+            <column name="status" type="VARCHAR(20)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="DATE"/>
+            <column name="end_date" type="DATE"/>
+            <column name="budget" type="DECIMAL(19,2)"/>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="customer_projects" indexName="idx_project_customer">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="customer_projects" indexName="idx_project_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="customer_projects" indexName="idx_project_status">
+            <column name="status"/>
+        </createIndex>
+        <!-- Composite unique constraint for customer + code -->
+        <addUniqueConstraint tableName="customer_projects"
+                           columnNames="customer_id, code"
+                           constraintName="uq_customer_project_code"/>
+    </changeSet>
+
+    <!-- Seed Data: Sample Customers -->
+    <changeSet id="003-003-seed-sample-customers" author="claude">
+        <!-- Business customer -->
+        <insert tableName="customers">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="B001"/>
+            <column name="customer_type" value="BUSINESS"/>
+            <column name="company_name" value="UAB Elektros Darbai"/>
+            <column name="vat_code" value="LT100012345678"/>
+            <column name="company_code" value="123456789"/>
+            <column name="email" value="info@elektrosdarbai.lt"/>
+            <column name="phone" value="+37052123456"/>
+            <column name="address" value="Gedimino pr. 1"/>
+            <column name="city" value="Vilnius"/>
+            <column name="postal_code" value="01103"/>
+            <column name="country" value="Lietuva"/>
+            <column name="price_group_id" valueComputed="(SELECT id FROM price_groups WHERE code = 'WHOLESALE' LIMIT 1)"/>
+            <column name="credit_limit" value="5000.00"/>
+            <column name="payment_terms_days" value="30"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+
+        <!-- Contractor customer -->
+        <insert tableName="customers">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="C001"/>
+            <column name="customer_type" value="CONTRACTOR"/>
+            <column name="company_name" value="MB Elektrikas"/>
+            <column name="vat_code" value="LT100098765432"/>
+            <column name="company_code" value="987654321"/>
+            <column name="email" value="info@elektrikas.lt"/>
+            <column name="phone" value="+37062123456"/>
+            <column name="mobile" value="+37062123456"/>
+            <column name="address" value="Savanorių pr. 123"/>
+            <column name="city" value="Kaunas"/>
+            <column name="postal_code" value="44151"/>
+            <column name="country" value="Lietuva"/>
+            <column name="price_group_id" valueComputed="(SELECT id FROM price_groups WHERE code = 'CONTRACTOR' LIMIT 1)"/>
+            <column name="credit_limit" value="2000.00"/>
+            <column name="payment_terms_days" value="14"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+
+        <!-- Retail customer -->
+        <insert tableName="customers">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="R001"/>
+            <column name="customer_type" value="RETAIL"/>
+            <column name="first_name" value="Jonas"/>
+            <column name="last_name" value="Jonaitis"/>
+            <column name="email" value="jonas.jonaitis@gmail.com"/>
+            <column name="phone" value="+37063123456"/>
+            <column name="address" value="Laisvės al. 50"/>
+            <column name="city" value="Kaunas"/>
+            <column name="postal_code" value="44246"/>
+            <column name="country" value="Lietuva"/>
+            <column name="price_group_id" valueComputed="(SELECT id FROM price_groups WHERE code = 'STANDARD' LIMIT 1)"/>
+            <column name="payment_terms_days" value="0"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Data: Sample Project -->
+    <changeSet id="003-004-seed-sample-projects" author="claude">
+        <insert tableName="customer_projects">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="customer_id" valueComputed="(SELECT id FROM customers WHERE code = 'B001' LIMIT 1)"/>
+            <column name="code" value="PROJ-2025-001"/>
+            <column name="name" value="Biuro pastato elektros montavimas"/>
+            <column name="description" value="Naujo biuro pastato elektros instaliacijos projektavimas ir montavimas"/>
+            <column name="address" value="Konstitucijos pr. 20"/>
+            <column name="city" value="Vilnius"/>
+            <column name="postal_code" value="09308"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="budget" value="50000.00"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
