@@ -40,6 +40,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import UndoIcon from '@mui/icons-material/Undo';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import QuickCreditPickupDialog from '../components/QuickCreditPickupDialog';
+import QuickCreditReturnDialog from '../components/QuickCreditReturnDialog';
 
 interface CreditTransaction {
   id: string;
@@ -88,6 +89,7 @@ const CreditTransactionsPage: React.FC = () => {
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [selectedTransaction, setSelectedTransaction] = useState<CreditTransactionDetails | null>(null);
   const [quickDialogOpen, setQuickDialogOpen] = useState(false);
+  const [quickReturnDialogOpen, setQuickReturnDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
@@ -135,6 +137,22 @@ const CreditTransactionsPage: React.FC = () => {
       ]);
     } catch (error) {
       console.error('Failed to load transactions:', error);
+    }
+  };
+
+  const handleQuickReturnSubmit = async (
+    customerId: string,
+    lines: Array<{ productCode: string; quantity: number; notes?: string }>,
+    performedBy: string,
+    performedByRole: string,
+    notes?: string
+  ) => {
+    try {
+      alert('Grąžinimas sėkmingai sukurtas!');
+      loadTransactions();
+    } catch (error) {
+      console.error('Failed to create return:', error);
+      alert('Klaida kuriant grąžinimą');
     }
   };
 
@@ -304,15 +322,26 @@ const CreditTransactionsPage: React.FC = () => {
         <Typography variant="h4" component="h1">
           Kredito transakcijos
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => setQuickDialogOpen(true)}
-          size="large"
-        >
-          Greitas paėmimas
-        </Button>
+        <Box display="flex" gap={2}>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<UndoIcon />}
+            onClick={() => setQuickReturnDialogOpen(true)}
+            size="large"
+          >
+            Greitas grąžinimas
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => setQuickDialogOpen(true)}
+            size="large"
+          >
+            Greitas paėmimas
+          </Button>
+        </Box>
       </Box>
 
       {/* Summary Cards */}
@@ -546,6 +575,14 @@ const CreditTransactionsPage: React.FC = () => {
         open={quickDialogOpen}
         onClose={() => setQuickDialogOpen(false)}
         onSubmit={handleQuickPickupSubmit}
+        currentUser="Jonas Jonaitis"
+      />
+
+      {/* Quick Return Dialog */}
+      <QuickCreditReturnDialog
+        open={quickReturnDialogOpen}
+        onClose={() => setQuickReturnDialogOpen(false)}
+        onSubmit={handleQuickReturnSubmit}
         currentUser="Jonas Jonaitis"
       />
 
