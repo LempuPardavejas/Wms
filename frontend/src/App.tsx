@@ -1,35 +1,104 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from './store';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import MainLayout from './components/MainLayout';
 import LoginPage from './pages/LoginPage';
 import POSPage from './pages/POSPage';
 import WMSPage from './pages/WMSPage';
 import AdminPage from './pages/AdminPage';
-import B2BPortal from './pages/B2BPortal';
+import B2BPortalPage from './pages/B2BPortalPage';
 import ReturnsPage from './pages/ReturnsPage';
+import CreditTransactionsPage from './pages/CreditTransactionsPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
 
 function App() {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  }
-
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/pos" replace />} />
-      <Route path="/pos" element={<POSPage />} />
-      <Route path="/wms" element={<WMSPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="/b2b" element={<B2BPortal />} />
-      <Route path="/returns" element={<ReturnsPage />} />
-      <Route path="*" element={<Navigate to="/pos" replace />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+        {/* Protected routes with layout */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Navigate to="/pos" replace />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/pos"
+          element={
+            <ProtectedRoute requiredRoles={['ADMIN', 'SALES', 'SALES_MANAGER']}>
+              <MainLayout>
+                <POSPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/wms"
+          element={
+            <ProtectedRoute requiredRoles={['ADMIN', 'WAREHOUSE']}>
+              <MainLayout>
+                <WMSPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requiredRoles={['ADMIN']}>
+              <MainLayout>
+                <AdminPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/b2b"
+          element={
+            <ProtectedRoute requiredRoles={['CLIENT', 'ADMIN']}>
+              <MainLayout>
+                <B2BPortalPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/returns"
+          element={
+            <ProtectedRoute requiredRoles={['ADMIN', 'SALES', 'WAREHOUSE']}>
+              <MainLayout>
+                <ReturnsPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/credit"
+          element={
+            <ProtectedRoute requiredRoles={['ADMIN', 'SALES', 'SALES_MANAGER']}>
+              <MainLayout>
+                <CreditTransactionsPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 
