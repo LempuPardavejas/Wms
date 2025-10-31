@@ -310,4 +310,61 @@
         </insert>
     </changeSet>
 
+    <!-- Seed Data: Demo Users for Testing -->
+    <changeSet id="001-010-seed-demo-users" author="claude">
+        <!-- Seller User: seller / seller123 -->
+        <insert tableName="users">
+            <column name="id" value="cccccccc-cccc-cccc-cccc-cccccccccccc"/>
+            <column name="username" value="seller"/>
+            <column name="email" value="seller@elektromeistras.lt"/>
+            <column name="password_hash" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/>
+            <column name="first_name" value="Pardavėjas"/>
+            <column name="last_name" value="Testinis"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="user_roles">
+            <column name="user_id" value="cccccccc-cccc-cccc-cccc-cccccccccccc"/>
+            <column name="role_id" value="ffffffff-ffff-ffff-ffff-ffffffffffff"/>
+        </insert>
+
+        <!-- Warehouse User: warehouse / warehouse123 -->
+        <insert tableName="users">
+            <column name="id" value="dddddddd-dddd-dddd-dddd-dddddddddddd"/>
+            <column name="username" value="warehouse"/>
+            <column name="email" value="warehouse@elektromeistras.lt"/>
+            <column name="password_hash" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/>
+            <column name="first_name" value="Sandėlininkas"/>
+            <column name="last_name" value="Testinis"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="user_roles">
+            <column name="user_id" value="dddddddd-dddd-dddd-dddd-dddddddddddd"/>
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE code = 'WAREHOUSE' LIMIT 1)"/>
+        </insert>
+
+        <!-- Client Role for B2B Portal -->
+        <insert tableName="roles">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="code" value="CLIENT"/>
+            <column name="name" value="Klientas"/>
+            <column name="description" value="B2B kliento prieiga"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+
+        <!-- Client User: client / client123 -->
+        <insert tableName="users">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="username" value="client"/>
+            <column name="email" value="client@example.lt"/>
+            <column name="password_hash" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/>
+            <column name="first_name" value="Klientas"/>
+            <column name="last_name" value="Testinis"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="user_roles">
+            <column name="user_id" valueComputed="(SELECT id FROM users WHERE username = 'client' LIMIT 1)"/>
+            <column name="role_id" valueComputed="(SELECT id FROM roles WHERE code = 'CLIENT' LIMIT 1)"/>
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>
