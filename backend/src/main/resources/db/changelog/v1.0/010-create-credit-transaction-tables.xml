@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Credit Transactions - Digital replacement for manual notebook -->
+    <changeSet id="010-001-create-credit-transactions" author="claude">
+        <createTable tableName="credit_transactions">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="transaction_number" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_credit_transaction_customer" references="customers(id)"/>
+            </column>
+            <column name="transaction_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(19,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_items" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Who performed the transaction -->
+            <column name="performed_by" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="performed_by_user_id" type="UUID"/>
+            <column name="performed_by_role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Signature/Confirmation -->
+            <column name="signature_data" type="TEXT"/>
+            <column name="confirmed_at" type="TIMESTAMP"/>
+            <column name="confirmed_by" type="VARCHAR(200)"/>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Critical indexes for FAST credit transaction lookup -->
+        <createIndex tableName="credit_transactions" indexName="idx_credit_customer_id">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="credit_transactions" indexName="idx_credit_type">
+            <column name="transaction_type"/>
+        </createIndex>
+        <createIndex tableName="credit_transactions" indexName="idx_credit_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="credit_transactions" indexName="idx_credit_created_at">
+            <column name="created_at"/>
+        </createIndex>
+        <!-- Composite indexes for common queries - PERFORMANCE OPTIMIZATION -->
+        <createIndex tableName="credit_transactions" indexName="idx_credit_customer_created">
+            <column name="customer_id"/>
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex tableName="credit_transactions" indexName="idx_credit_customer_status">
+            <column name="customer_id"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Credit Transaction Lines -->
+    <changeSet id="010-002-create-credit-transaction-lines" author="claude">
+        <createTable tableName="credit_transaction_lines">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="transaction_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_credit_line_transaction" references="credit_transactions(id)"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_credit_line_product" references="products(id)"/>
+            </column>
+            <column name="product_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_name" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="DECIMAL(19,3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="line_total" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notes" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Indexes for credit transaction lines -->
+        <createIndex tableName="credit_transaction_lines" indexName="idx_credit_line_transaction">
+            <column name="transaction_id"/>
+        </createIndex>
+        <createIndex tableName="credit_transaction_lines" indexName="idx_credit_line_product">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
