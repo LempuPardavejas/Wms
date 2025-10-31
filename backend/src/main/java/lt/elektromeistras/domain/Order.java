@@ -40,8 +40,9 @@ public class Order {
     @Column(name = "project_id")
     private UUID projectId;
 
-    @Column(name = "warehouse_id")
-    private UUID warehouseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -185,5 +186,12 @@ public class Order {
         for (int i = 0; i < orderLines.size(); i++) {
             orderLines.get(i).setLineNumber(i + 1);
         }
+    }
+
+    /**
+     * Get order lines - alias for getOrderLines() for backward compatibility
+     */
+    public List<OrderLine> getLines() {
+        return orderLines;
     }
 }
