@@ -19,6 +19,6 @@ public interface WarehouseLocationRepository extends JpaRepository<WarehouseLoca
     Optional<WarehouseLocation> findByWarehouseIdAndCode(@Param("warehouseId") UUID warehouseId,
                                                           @Param("code") String code);
 
-    @Query("SELECT wl FROM WarehouseLocation wl WHERE wl.warehouse.id = :warehouseId AND wl.active = true")
+    @Query("SELECT wl FROM WarehouseLocation wl WHERE wl.warehouse.id = :warehouseId AND wl.isActive = true")
     List<WarehouseLocation> findActiveLocationsByWarehouse(@Param("warehouseId") UUID warehouseId);
 }

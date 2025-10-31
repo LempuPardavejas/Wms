@@ -83,7 +83,8 @@ class ReturnServiceTest {
         testCustomer = new Customer();
         testCustomer.setId(UUID.randomUUID());
         testCustomer.setCode("CUST001");
-        testCustomer.setName("Test Customer");
+        testCustomer.setFirstName("Test");
+        testCustomer.setLastName("Customer");
 
         // Setup test warehouse
         testWarehouse = new Warehouse();
