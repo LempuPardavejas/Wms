@@ -15,5 +15,6 @@
     <include file="db/changelog/v1.0/008-seed-initial-data.xml"/>
     <include file="db/changelog/v1.0/009-create-return-tables.xml"/>
     <include file="db/changelog/v1.0/010-create-credit-transaction-tables.xml"/>
+    <include file="db/changelog/v1.0/011-create-supplier-tables.xml"/>
 
 </databaseChangeLog>

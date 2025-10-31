@@ -29,7 +29,7 @@ public class Product {
     @Column(nullable = false, unique = true, length = 50)
     private String code;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(unique = true, length = 100)
     private String sku;
 
     @Column(length = 50)
@@ -41,8 +41,9 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "category_id")
-    private UUID categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private ProductCategory category;
 
     @Column(name = "manufacturer_id")
     private UUID manufacturerId;
