@@ -16,5 +16,8 @@
     <include file="db/changelog/v1.0/009-create-return-tables.xml"/>
     <include file="db/changelog/v1.0/010-create-credit-transaction-tables.xml"/>
     <include file="db/changelog/v1.0/011-create-supplier-tables.xml"/>
+    <include file="db/changelog/v1.0/012-create-dimension-tables.xml"/>
+    <include file="db/changelog/v1.0/013-create-gl-tables.xml"/>
+    <include file="db/changelog/v1.0/014-create-budget-tables.xml"/>
 
 </databaseChangeLog>

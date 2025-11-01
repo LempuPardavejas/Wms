@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Budgets -->
+    <changeSet id="014-001-create-budgets" author="claude">
+        <createTable tableName="budgets">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="budget_period_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_budget_period" references="budget_periods(id)"/>
+            </column>
+            <column name="budget_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)" defaultValue="DRAFT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(19,2)"/>
+            <column name="created_by_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_created_by" references="users(id)"/>
+            </column>
+            <column name="approved_by_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_approved_by" references="users(id)"/>
+            </column>
+            <column name="approved_at" type="TIMESTAMP"/>
+            <column name="version" type="INTEGER"/>
+            <column name="notes" type="VARCHAR(1000)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="budgets" indexName="idx_budget_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="budgets" indexName="idx_budget_period">
+            <column name="budget_period_id"/>
+        </createIndex>
+        <createIndex tableName="budgets" indexName="idx_budget_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Budget Lines -->
+    <changeSet id="014-002-create-budget-lines" author="claude">
+        <createTable tableName="budget_lines">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="budget_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_budget_line_budget" references="budgets(id)" deleteCascade="true"/>
+            </column>
+            <column name="gl_account_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_budget_line_account" references="gl_accounts(id)"/>
+            </column>
+            <column name="line_number" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="amount" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Static Dimensions -->
+            <column name="department_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_department" references="departments(id)"/>
+            </column>
+            <column name="business_object_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_object" references="business_objects(id)"/>
+            </column>
+            <column name="cost_center_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_center" references="cost_centers(id)"/>
+            </column>
+            <column name="series_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_series" references="series(id)"/>
+            </column>
+            <column name="person_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_person" references="persons(id)"/>
+            </column>
+
+            <!-- Dynamic Dimensions (15) -->
+            <column name="dimension_1_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim1" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_2_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim2" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_3_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim3" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_4_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim4" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_5_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim5" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_6_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim6" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_7_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim7" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_8_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim8" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_9_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim9" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_10_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim10" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_11_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim11" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_12_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim12" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_13_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim13" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_14_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim14" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_15_id" type="UUID">
+                <constraints foreignKeyName="fk_budget_line_dim15" references="dimension_values(id)"/>
+            </column>
+
+            <column name="notes" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="budget_lines" indexName="idx_budget_line_budget">
+            <column name="budget_id"/>
+        </createIndex>
+        <createIndex tableName="budget_lines" indexName="idx_budget_line_account">
+            <column name="gl_account_id"/>
+        </createIndex>
+        <createIndex tableName="budget_lines" indexName="idx_budget_line_dimensions">
+            <column name="department_id"/>
+            <column name="cost_center_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Budget Variances -->
+    <changeSet id="014-003-create-budget-variances" author="claude">
+        <createTable tableName="budget_variances">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="budget_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_variance_budget" references="budgets(id)"/>
+            </column>
+            <column name="budget_line_id" type="UUID">
+                <constraints foreignKeyName="fk_variance_budget_line" references="budget_lines(id)"/>
+            </column>
+            <column name="gl_account_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_variance_account" references="gl_accounts(id)"/>
+            </column>
+            <column name="variance_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="budgeted_amount" type="DECIMAL(19,2)" defaultValueNumeric="0.00"/>
+            <column name="actual_amount" type="DECIMAL(19,2)" defaultValueNumeric="0.00"/>
+            <column name="variance_amount" type="DECIMAL(19,2)" defaultValueNumeric="0.00"/>
+            <column name="variance_percentage" type="DECIMAL(10,2)"/>
+            <column name="variance_type" type="VARCHAR(50)"/>
+
+            <!-- Dimensions for variance analysis -->
+            <column name="department_id" type="UUID">
+                <constraints foreignKeyName="fk_variance_department" references="departments(id)"/>
+            </column>
+            <column name="business_object_id" type="UUID">
+                <constraints foreignKeyName="fk_variance_object" references="business_objects(id)"/>
+            </column>
+            <column name="cost_center_id" type="UUID">
+                <constraints foreignKeyName="fk_variance_center" references="cost_centers(id)"/>
+            </column>
+            <column name="series_id" type="UUID">
+                <constraints foreignKeyName="fk_variance_series" references="series(id)"/>
+            </column>
+            <column name="person_id" type="UUID">
+                <constraints foreignKeyName="fk_variance_person" references="persons(id)"/>
+            </column>
+
+            <column name="notes" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="budget_variances" indexName="idx_variance_budget">
+            <column name="budget_id"/>
+        </createIndex>
+        <createIndex tableName="budget_variances" indexName="idx_variance_account">
+            <column name="gl_account_id"/>
+        </createIndex>
+        <createIndex tableName="budget_variances" indexName="idx_variance_period">
+            <column name="variance_date"/>
+        </createIndex>
+        <createIndex tableName="budget_variances" indexName="idx_variance_dimensions">
+            <column name="department_id"/>
+            <column name="cost_center_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
