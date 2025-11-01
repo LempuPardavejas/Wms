@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- GL Accounts (Chart of Accounts) -->
+    <changeSet id="013-001-create-gl-accounts" author="claude">
+        <createTable tableName="gl_accounts">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="account_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_category" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_account_id" type="UUID">
+                <constraints foreignKeyName="fk_gl_account_parent" references="gl_accounts(id)"/>
+            </column>
+            <column name="normal_balance" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="allow_direct_posting" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="require_department" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="require_cost_center" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="require_business_object" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="current_balance" type="DECIMAL(19,2)" defaultValueNumeric="0.00"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="gl_accounts" indexName="idx_gl_account_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="gl_accounts" indexName="idx_gl_account_type">
+            <column name="account_type"/>
+        </createIndex>
+        <createIndex tableName="gl_accounts" indexName="idx_gl_account_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Budget Periods -->
+    <changeSet id="013-002-create-budget-periods" author="claude">
+        <createTable tableName="budget_periods">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="period_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fiscal_year" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)" defaultValue="DRAFT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="budget_periods" indexName="idx_budget_period_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="budget_periods" indexName="idx_budget_period_dates">
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </createIndex>
+        <createIndex tableName="budget_periods" indexName="idx_budget_period_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Journal Entries -->
+    <changeSet id="013-003-create-journal-entries" author="claude">
+        <createTable tableName="journal_entries">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="entry_number" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="entry_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="posting_date" type="DATE"/>
+            <column name="entry_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_type" type="VARCHAR(50)"/>
+            <column name="source_document_id" type="UUID"/>
+            <column name="source_document_number" type="VARCHAR(100)"/>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="total_debit" type="DECIMAL(19,2)"/>
+            <column name="total_credit" type="DECIMAL(19,2)"/>
+            <column name="status" type="VARCHAR(50)" defaultValue="DRAFT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_entry_created_by" references="users(id)"/>
+            </column>
+            <column name="posted_by_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_entry_posted_by" references="users(id)"/>
+            </column>
+            <column name="posted_at" type="TIMESTAMP"/>
+            <column name="budget_period_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_entry_period" references="budget_periods(id)"/>
+            </column>
+            <column name="notes" type="VARCHAR(1000)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="journal_entries" indexName="idx_journal_entry_number">
+            <column name="entry_number"/>
+        </createIndex>
+        <createIndex tableName="journal_entries" indexName="idx_journal_entry_date">
+            <column name="entry_date"/>
+        </createIndex>
+        <createIndex tableName="journal_entries" indexName="idx_journal_entry_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="journal_entries" indexName="idx_journal_entry_type">
+            <column name="entry_type"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Journal Entry Lines -->
+    <changeSet id="013-004-create-journal-entry-lines" author="claude">
+        <createTable tableName="journal_entry_lines">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="journal_entry_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_journal_line_entry" references="journal_entries(id)" deleteCascade="true"/>
+            </column>
+            <column name="line_number" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gl_account_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_journal_line_account" references="gl_accounts(id)"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="debit_amount" type="DECIMAL(19,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_amount" type="DECIMAL(19,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Static Dimensions -->
+            <column name="department_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_department" references="departments(id)"/>
+            </column>
+            <column name="business_object_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_object" references="business_objects(id)"/>
+            </column>
+            <column name="cost_center_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_center" references="cost_centers(id)"/>
+            </column>
+            <column name="series_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_series" references="series(id)"/>
+            </column>
+            <column name="person_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_person" references="persons(id)"/>
+            </column>
+
+            <!-- Dynamic Dimensions (15) -->
+            <column name="dimension_1_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim1" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_2_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim2" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_3_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim3" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_4_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim4" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_5_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim5" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_6_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim6" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_7_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim7" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_8_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim8" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_9_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim9" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_10_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim10" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_11_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim11" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_12_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim12" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_13_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim13" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_14_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim14" references="dimension_values(id)"/>
+            </column>
+            <column name="dimension_15_id" type="UUID">
+                <constraints foreignKeyName="fk_journal_line_dim15" references="dimension_values(id)"/>
+            </column>
+
+            <column name="notes" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="journal_entry_lines" indexName="idx_journal_line_entry">
+            <column name="journal_entry_id"/>
+        </createIndex>
+        <createIndex tableName="journal_entry_lines" indexName="idx_journal_line_account">
+            <column name="gl_account_id"/>
+        </createIndex>
+        <createIndex tableName="journal_entry_lines" indexName="idx_journal_line_dimensions">
+            <column name="department_id"/>
+            <column name="cost_center_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Departments (Static Dimension) -->
+    <changeSet id="012-001-create-departments" author="claude">
+        <createTable tableName="departments">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="parent_department_id" type="UUID">
+                <constraints foreignKeyName="fk_department_parent" references="departments(id)"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="departments" indexName="idx_department_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="departments" indexName="idx_department_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Cost Centers (Static Dimension) -->
+    <changeSet id="012-002-create-cost-centers" author="claude">
+        <createTable tableName="cost_centers">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="center_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="department_id" type="UUID">
+                <constraints foreignKeyName="fk_cost_center_department" references="departments(id)"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="cost_centers" indexName="idx_cost_center_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="cost_centers" indexName="idx_cost_center_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Business Objects (Static Dimension) -->
+    <changeSet id="012-003-create-business-objects" author="claude">
+        <createTable tableName="business_objects">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="object_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="department_id" type="UUID">
+                <constraints foreignKeyName="fk_business_object_department" references="departments(id)"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="business_objects" indexName="idx_business_object_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="business_objects" indexName="idx_business_object_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Series (Static Dimension) -->
+    <changeSet id="012-004-create-series" author="claude">
+        <createTable tableName="series">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="series_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prefix" type="VARCHAR(20)"/>
+            <column name="current_number" type="BIGINT"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="series" indexName="idx_series_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="series" indexName="idx_series_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Persons (Static Dimension) -->
+    <changeSet id="012-005-create-persons" author="claude">
+        <createTable tableName="persons">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="person_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints foreignKeyName="fk_person_user" references="users(id)"/>
+            </column>
+            <column name="department_id" type="UUID">
+                <constraints foreignKeyName="fk_person_department" references="departments(id)"/>
+            </column>
+            <column name="position" type="VARCHAR(200)"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="persons" indexName="idx_person_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="persons" indexName="idx_person_active">
+            <column name="is_active"/>
+        </createIndex>
+        <createIndex tableName="persons" indexName="idx_person_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Dimension Types (Dynamic Dimensions) -->
+    <changeSet id="012-006-create-dimension-types" author="claude">
+        <createTable tableName="dimension_types">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="data_type" type="VARCHAR(50)" defaultValue="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_hierarchical" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="dimension_types" indexName="idx_dimension_type_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="dimension_types" indexName="idx_dimension_type_active">
+            <column name="is_active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Dimension Values (Dynamic Dimensions) -->
+    <changeSet id="012-007-create-dimension-values" author="claude">
+        <createTable tableName="dimension_values">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="dimension_type_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_dimension_value_type" references="dimension_types(id)"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="text_value" type="VARCHAR(500)"/>
+            <column name="numeric_value" type="DOUBLE PRECISION"/>
+            <column name="date_value" type="DATE"/>
+            <column name="boolean_value" type="BOOLEAN"/>
+            <column name="parent_value_id" type="UUID">
+                <constraints foreignKeyName="fk_dimension_value_parent" references="dimension_values(id)"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="dimension_values" indexName="idx_dimension_value_type">
+            <column name="dimension_type_id"/>
+        </createIndex>
+        <createIndex tableName="dimension_values" indexName="idx_dimension_value_code">
+            <column name="dimension_type_id"/>
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="dimension_values" indexName="idx_dimension_value_active">
+            <column name="is_active"/>
+        </createIndex>
+
+        <addUniqueConstraint tableName="dimension_values"
+                            columnNames="dimension_type_id, code"
+                            constraintName="uk_dimension_type_code"/>
+    </changeSet>
+
+</databaseChangeLog>
