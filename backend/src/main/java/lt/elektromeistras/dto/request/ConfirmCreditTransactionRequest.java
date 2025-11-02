@@ -16,5 +16,7 @@ public class ConfirmCreditTransactionRequest {
 
     private String signatureData; // Base64 encoded signature image (optional)
 
+    private String photoData; // Base64 encoded photo of person who signed (optional)
+
     private String notes;
 }

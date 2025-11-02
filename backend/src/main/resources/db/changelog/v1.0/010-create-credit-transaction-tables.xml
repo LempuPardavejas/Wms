@@ -116,4 +116,11 @@
         </createIndex>
     </changeSet>
 
+    <!-- Add photo data column for person who signed -->
+    <changeSet id="010-003-add-photo-data-column" author="claude">
+        <addColumn tableName="credit_transactions">
+            <column name="photo_data" type="TEXT" remarks="Base64 encoded photo of person who signed (optional)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

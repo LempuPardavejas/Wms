@@ -23,9 +23,13 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Collapse,
+  IconButton,
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CustomerAutocomplete from './CustomerAutocomplete';
 import { getMonthlyStatement } from '../services/creditTransactionService';
 
@@ -53,6 +57,10 @@ interface StatementTransaction {
   totalAmount: number;
   totalItems: number;
   performedBy: string;
+  confirmedBy?: string;
+  confirmedAt?: string;
+  signatureData?: string;
+  photoData?: string;
   createdAt: string;
   lines: Array<{
     productCode: string;
@@ -89,6 +97,7 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState<StatementTransaction[]>([]);
   const [showStatement, setShowStatement] = useState(false);
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const handleGenerateStatement = async () => {
     if (!customer) {
@@ -292,6 +301,8 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
                       <TableCell>Prekės</TableCell>
                       <TableCell align="right">Suma</TableCell>
                       <TableCell>Atliko</TableCell>
+                      <TableCell>Parašas/Nuotr.</TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -332,9 +343,95 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
                             <Typography variant="body2">
                               {transaction.performedBy}
                             </Typography>
+                            {transaction.confirmedBy && (
+                              <Typography variant="caption" color="text.secondary">
+                                <br />Patvirtino: {transaction.confirmedBy}
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell align="center">
+                            {transaction.signatureData && (
+                              <Chip label="Parašas ✓" size="small" color="success" />
+                            )}
+                            {transaction.photoData && (
+                              <Chip label="Nuotr. ✓" size="small" color="info" sx={{ ml: 0.5 }} />
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {(transaction.signatureData || transaction.photoData) && (
+                              <IconButton
+                                size="small"
+                                onClick={() => setExpandedRow(expandedRow === transaction.id ? null : transaction.id)}
+                              >
+                                {expandedRow === transaction.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                              </IconButton>
+                            )}
                           </TableCell>
                         </TableRow>
-                        {/* Detailed lines (expandable in future) */}
+
+                        {/* Expanded Row - Show Signature and Photo */}
+                        <TableRow>
+                          <TableCell colSpan={8} sx={{ py: 0, border: 0 }}>
+                            <Collapse in={expandedRow === transaction.id} timeout="auto" unmountOnExit>
+                              <Box sx={{ p: 2, bgcolor: 'background.default' }}>
+                                <Grid container spacing={2}>
+                                  {transaction.signatureData && (
+                                    <Grid item xs={12} md={6}>
+                                      <Paper variant="outlined" sx={{ p: 2 }}>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                          Parašas
+                                        </Typography>
+                                        <Box
+                                          component="img"
+                                          src={transaction.signatureData}
+                                          alt="Parašas"
+                                          sx={{
+                                            width: '100%',
+                                            maxWidth: 400,
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: 1,
+                                          }}
+                                        />
+                                        {transaction.confirmedAt && (
+                                          <Typography variant="caption" color="text.secondary" display="block" mt={1}>
+                                            Patvirtinta: {new Date(transaction.confirmedAt).toLocaleString('lt-LT')}
+                                          </Typography>
+                                        )}
+                                      </Paper>
+                                    </Grid>
+                                  )}
+                                  {transaction.photoData && (
+                                    <Grid item xs={12} md={6}>
+                                      <Paper variant="outlined" sx={{ p: 2 }}>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                          Nuotrauka
+                                        </Typography>
+                                        <Box
+                                          component="img"
+                                          src={transaction.photoData}
+                                          alt="Nuotrauka"
+                                          sx={{
+                                            width: '100%',
+                                            maxWidth: 300,
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: 1,
+                                          }}
+                                        />
+                                        {transaction.confirmedBy && (
+                                          <Typography variant="caption" color="text.secondary" display="block" mt={1}>
+                                            Patvirtino: {transaction.confirmedBy}
+                                          </Typography>
+                                        )}
+                                      </Paper>
+                                    </Grid>
+                                  )}
+                                </Grid>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
                       </React.Fragment>
                     ))}
                     <TableRow>
@@ -346,7 +443,7 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
                           €{totals.net.toFixed(2)}
                         </Typography>
                       </TableCell>
-                      <TableCell />
+                      <TableCell colSpan={3} />
                     </TableRow>
                   </TableBody>
                 </Table>

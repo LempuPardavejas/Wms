@@ -32,6 +32,8 @@ public class CreditTransactionResponse {
     private String performedByRole;
     private String confirmedBy;
     private Instant confirmedAt;
+    private String signatureData; // Base64 encoded signature image
+    private String photoData; // Base64 encoded photo of person who signed
     private String notes;
     private Instant createdAt;
     private Instant updatedAt;
