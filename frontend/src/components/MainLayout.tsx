@@ -165,7 +165,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {navigationItems.find((item: any) => item.path === location.pathname)?.label ||
+            {(navigationItems.find((item: any) => item && item.path === location.pathname) as any)?.label ||
               'Dashboard'}
           </Typography>
 

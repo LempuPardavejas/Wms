@@ -14,7 +14,6 @@ import {
   ListItem,
   ListItemText,
   TextField,
-  Dialog,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -39,8 +38,8 @@ interface CartItem {
 
 const POSPage: React.FC = () => {
   const { user } = useAuth();
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [showQuickOrder, setShowQuickOrder] = useState(false);
+  const [cart, _setCart] = useState<CartItem[]>([]);
+  const [_showQuickOrder, _setShowQuickOrder] = useState(false);
 
   // Calculate totals
   const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
@@ -48,7 +47,7 @@ const POSPage: React.FC = () => {
   const total = subtotal + tax;
 
   const handleNewOrder = () => {
-    setShowQuickOrder(true);
+    _setShowQuickOrder(true);
   };
 
   const handleKeyboardShortcut = (e: React.KeyboardEvent) => {

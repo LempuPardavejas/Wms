@@ -368,7 +368,6 @@ const QuickCreditPickupDialog: React.FC<QuickCreditPickupDialogProps> = ({
           {/* Product Selection */}
           <Grid item xs={12} sm={8}>
             <ProductCodeInput
-              ref={productInputRef}
               value={selectedProduct}
               onChange={setSelectedProduct}
               label="Prekės kodas"

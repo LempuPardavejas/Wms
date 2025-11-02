@@ -80,7 +80,7 @@ const SimpleCreditPortal: React.FC = () => {
   const handleQuickPickup = async (
     customerId: string,
     lines: Array<{ productCode: string; quantity: number; notes?: string }>,
-    transactionType: 'PICKUP' | 'RETURN',
+    _transactionType: 'PICKUP' | 'RETURN',
     performedBy: string,
     performedByRole: string,
     notes?: string

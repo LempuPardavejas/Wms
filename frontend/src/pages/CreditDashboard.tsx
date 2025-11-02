@@ -25,7 +25,6 @@ import UndoIcon from '@mui/icons-material/Undo';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import SearchIcon from '@mui/icons-material/Search';
-import PersonIcon from '@mui/icons-material/Person';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -141,7 +140,7 @@ const CreditDashboard: React.FC = () => {
   const handleQuickPickup = async (
     customerId: string,
     lines: Array<{ productCode: string; quantity: number; notes?: string }>,
-    transactionType: 'PICKUP' | 'RETURN',
+    _transactionType: 'PICKUP' | 'RETURN',
     performedBy: string,
     performedByRole: string,
     notes?: string
@@ -220,7 +219,7 @@ const CreditDashboard: React.FC = () => {
     setSelectedForReturnId(null);
   };
 
-  const handleProductSelect = (product: any) => {
+  const handleProductSelect = (_product: any) => {
     // Open pickup dialog with pre-selected product
     // TODO: Implement pre-selection in QuickCreditPickupDialog
     setPickupDialogOpen(true);

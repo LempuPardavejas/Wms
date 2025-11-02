@@ -4,6 +4,15 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+// Mock import.meta
+(globalThis as any).import = {
+  meta: {
+    env: {
+      VITE_API_URL: '/api'
+    }
+  }
+};
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -26,4 +35,4 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-global.localStorage = localStorageMock as any;
+(globalThis as any).localStorage = localStorageMock;
