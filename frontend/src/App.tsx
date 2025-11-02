@@ -9,7 +9,9 @@ import AdminPage from './pages/AdminPage';
 import B2BPortalPage from './pages/B2BPortalPage';
 import ReturnsPage from './pages/ReturnsPage';
 import CreditTransactionsPage from './pages/CreditTransactionsPage';
+import CreditDashboard from './pages/CreditDashboard';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import './styles/print.css';
 
 function App() {
   return (
@@ -86,6 +88,18 @@ function App() {
 
         <Route
           path="/credit"
+          element={
+            <ProtectedRoute requiredRoles={['ADMIN', 'SALES', 'SALES_MANAGER']}>
+              <MainLayout>
+                <CreditDashboard />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Alternative simple portal */}
+        <Route
+          path="/credit-simple"
           element={
             <ProtectedRoute requiredRoles={['ADMIN', 'SALES', 'SALES_MANAGER']}>
               <MainLayout>

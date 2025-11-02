@@ -150,6 +150,9 @@ public class CreditTransactionService {
         if (request.getSignatureData() != null) {
             transaction.setSignatureData(request.getSignatureData());
         }
+        if (request.getPhotoData() != null) {
+            transaction.setPhotoData(request.getPhotoData());
+        }
         if (request.getNotes() != null) {
             transaction.setNotes(transaction.getNotes() + "\n" + request.getNotes());
         }
@@ -310,6 +313,8 @@ public class CreditTransactionService {
         response.setPerformedByRole(t.getPerformedByRole().name());
         response.setConfirmedBy(t.getConfirmedBy());
         response.setConfirmedAt(t.getConfirmedAt());
+        response.setSignatureData(t.getSignatureData());
+        response.setPhotoData(t.getPhotoData());
         response.setNotes(t.getNotes());
         response.setCreatedAt(t.getCreatedAt());
         response.setUpdatedAt(t.getUpdatedAt());

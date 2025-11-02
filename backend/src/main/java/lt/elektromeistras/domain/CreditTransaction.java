@@ -72,6 +72,10 @@ public class CreditTransaction {
     @Column(name = "signature_data", columnDefinition = "TEXT")
     private String signatureData;
 
+    // Photo of person who signed (optional)
+    @Column(name = "photo_data", columnDefinition = "TEXT")
+    private String photoData;
+
     @Column(name = "confirmed_at")
     private Instant confirmedAt;
 

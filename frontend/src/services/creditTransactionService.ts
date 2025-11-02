@@ -40,6 +40,8 @@ export interface CreditTransactionResponse {
   performedByRole: string;
   confirmedBy?: string;
   confirmedAt?: string;
+  signatureData?: string;
+  photoData?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -182,6 +184,7 @@ export const confirmCreditTransaction = async (
   id: string,
   confirmedBy: string,
   signatureData?: string,
+  photoData?: string,
   notes?: string
 ): Promise<CreditTransactionResponse> => {
   const response = await fetch(`${API_BASE_URL}/${id}/confirm`, {
@@ -192,6 +195,7 @@ export const confirmCreditTransaction = async (
     body: JSON.stringify({
       confirmedBy,
       signatureData,
+      photoData,
       notes,
     }),
   });
