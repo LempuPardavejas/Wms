@@ -32,6 +32,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CustomerAutocomplete from './CustomerAutocomplete';
 import { getMonthlyStatement } from '../services/creditTransactionService';
+import { exportMonthlyStatementToExcel } from '../utils/excelExport';
 
 interface Customer {
   id: string;
@@ -122,9 +123,27 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
     window.print();
   };
 
-  const handleExportPDF = async () => {
-    // TODO: Implement PDF export
-    alert('PDF eksportavimas dar neįdiegtas');
+  const handleExportExcel = () => {
+    if (!customer) return;
+
+    const exportData = transactions.map(t => ({
+      transactionNumber: t.transactionNumber,
+      transactionType: t.transactionType,
+      date: t.createdAt,
+      customerName: customer ? getCustomerDisplayName(customer) : '',
+      totalAmount: t.totalAmount,
+      totalItems: t.totalItems,
+      performedBy: t.performedBy,
+      confirmedBy: t.confirmedBy,
+      status: t.transactionType === 'PICKUP' ? 'Paėmimas' : 'Grąžinimas',
+    }));
+
+    exportMonthlyStatementToExcel(
+      getCustomerDisplayName(customer),
+      year,
+      month,
+      exportData
+    );
   };
 
   const getCustomerDisplayName = (customer: Customer): string => {
@@ -472,9 +491,10 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
             </Button>
             <Button
               startIcon={<DownloadIcon />}
-              onClick={handleExportPDF}
+              onClick={handleExportExcel}
+              color="success"
             >
-              Eksportuoti PDF
+              Eksportuoti Excel
             </Button>
             <Button onClick={() => setShowStatement(false)}>
               Naujas išrašas

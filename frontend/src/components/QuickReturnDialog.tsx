@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -18,9 +18,11 @@ import {
   TextField,
   Alert,
   Chip,
+  CircularProgress,
 } from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import SaveIcon from '@mui/icons-material/Save';
+import { getCreditTransactionById } from '../services/creditTransactionService';
 
 interface PickupTransaction {
   id: string;
@@ -41,10 +43,11 @@ interface QuickReturnDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (
-    transaction: PickupTransaction,
-    selectedLines: Array<{ productCode: string; quantity: number }>
+    customerCode: string,
+    selectedLines: Array<{ productCode: string; quantity: number }>,
+    originalTransactionNumber: string
   ) => void;
-  transaction: PickupTransaction | null;
+  transactionId: string | null;
 }
 
 /**
@@ -61,26 +64,53 @@ const QuickReturnDialog: React.FC<QuickReturnDialogProps> = ({
   open,
   onClose,
   onSubmit,
-  transaction,
+  transactionId,
 }) => {
+  const [transaction, setTransaction] = useState<PickupTransaction | null>(null);
+  const [loading, setLoading] = useState(false);
   const [selectedLines, setSelectedLines] = useState<{ [key: string]: boolean }>({});
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
-  React.useEffect(() => {
-    if (transaction && open) {
+  useEffect(() => {
+    if (transactionId && open) {
+      loadTransaction();
+    }
+  }, [transactionId, open]);
+
+  const loadTransaction = async () => {
+    if (!transactionId) return;
+
+    setLoading(true);
+    try {
+      const data = await getCreditTransactionById(transactionId);
+      const pickupTx: PickupTransaction = {
+        id: data.id,
+        transactionNumber: data.transactionNumber,
+        customerName: data.customerName,
+        lines: data.lines,
+        totalAmount: data.totalAmount,
+        createdAt: data.createdAt,
+      };
+      setTransaction(pickupTx);
+
       // Initialize: select all lines, full quantities
       const selected: { [key: string]: boolean } = {};
       const qtys: { [key: string]: number } = {};
 
-      transaction.lines.forEach(line => {
+      pickupTx.lines.forEach(line => {
         selected[line.id] = true;
         qtys[line.id] = line.quantity;
       });
 
       setSelectedLines(selected);
       setQuantities(qtys);
+    } catch (error) {
+      console.error('Failed to load transaction:', error);
+      alert('Nepavyko įkelti transakcijos');
+    } finally {
+      setLoading(false);
     }
-  }, [transaction, open]);
+  };
 
   const handleToggleLine = (lineId: string) => {
     setSelectedLines(prev => ({
@@ -111,7 +141,11 @@ const QuickReturnDialog: React.FC<QuickReturnDialogProps> = ({
       return;
     }
 
-    onSubmit(transaction, returnLines);
+    // Extract customer code from customerName (if format is "Name (CODE)")
+    // Or just use transaction number as reference
+    const customerCode = transaction.customerName; // TODO: proper customer code extraction
+
+    onSubmit(customerCode, returnLines, transaction.transactionNumber);
     onClose();
   };
 
@@ -130,8 +164,6 @@ const QuickReturnDialog: React.FC<QuickReturnDialogProps> = ({
     return Object.values(selectedLines).filter(Boolean).length;
   };
 
-  if (!transaction) return null;
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -141,14 +173,28 @@ const QuickReturnDialog: React.FC<QuickReturnDialogProps> = ({
             <Typography variant="h6">
               Greitas Grąžinimas
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Iš paėmimo: {transaction.transactionNumber}
-            </Typography>
+            {transaction && (
+              <Typography variant="caption" color="text.secondary">
+                Iš paėmimo: {transaction.transactionNumber}
+              </Typography>
+            )}
           </Box>
         </Box>
       </DialogTitle>
 
       <DialogContent dividers>
+        {loading && (
+          <Box display="flex" justifyContent="center" alignItems="center" py={4}>
+            <CircularProgress />
+          </Box>
+        )}
+
+        {!loading && !transaction && (
+          <Alert severity="info">Pasirinkite operaciją grąžinimui</Alert>
+        )}
+
+        {!loading && transaction && (
+          <>
         <Box mb={2}>
           <Paper sx={{ p: 2, bgcolor: 'background.default' }}>
             <Typography variant="body2" color="text.secondary">
@@ -270,6 +316,8 @@ const QuickReturnDialog: React.FC<QuickReturnDialogProps> = ({
             Grąžinimas sumažins kliento skolą €{getReturnTotal().toFixed(2)}
           </Alert>
         </Box>
+        </>
+        )}
       </DialogContent>
 
       <DialogActions>

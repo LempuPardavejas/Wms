@@ -79,7 +79,7 @@ const CreditDashboard: React.FC = () => {
   const [pendingTransactions, setPendingTransactions] = useState<CreditTransactionSummaryResponse[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<CreditTransactionSummaryResponse[]>([]);
   const [selectedTransaction, setSelectedTransaction] = useState<CreditTransactionResponse | null>(null);
-  const [selectedForReturn, setSelectedForReturn] = useState<any>(null);
+  const [selectedForReturnId, setSelectedForReturnId] = useState<string | null>(null);
 
   // UI states
   const [loading, setLoading] = useState(false);
@@ -196,27 +196,28 @@ const CreditDashboard: React.FC = () => {
     }
   };
 
-  const handleQuickReturn = (transaction: any) => {
-    setSelectedForReturn(transaction);
+  const handleQuickReturn = (transactionId: string) => {
+    setSelectedForReturnId(transactionId);
     setReturnDialogOpen(true);
   };
 
   const handleSubmitReturn = async (
-    transaction: any,
-    selectedLines: Array<{ productCode: string; quantity: number }>
+    customerCode: string,
+    selectedLines: Array<{ productCode: string; quantity: number }>,
+    originalTransactionNumber: string
   ) => {
     // Create return transaction
     await handleQuickPickup(
-      transaction.customerCode,
+      customerCode,
       selectedLines,
       'RETURN',
       'Elektrikas',
       'EMPLOYEE',
-      `Grąžinimas iš ${transaction.transactionNumber}`
+      `Grąžinimas iš ${originalTransactionNumber}`
     );
 
     setReturnDialogOpen(false);
-    setSelectedForReturn(null);
+    setSelectedForReturnId(null);
   };
 
   const handleProductSelect = (product: any) => {
@@ -501,7 +502,7 @@ const CreditDashboard: React.FC = () => {
                           variant="outlined"
                           size="small"
                           startIcon={<UndoIcon />}
-                          onClick={() => handleQuickReturn(transaction)}
+                          onClick={() => handleQuickReturn(transaction.id)}
                         >
                           Grąžinti
                         </Button>
@@ -542,10 +543,10 @@ const CreditDashboard: React.FC = () => {
         open={returnDialogOpen}
         onClose={() => {
           setReturnDialogOpen(false);
-          setSelectedForReturn(null);
+          setSelectedForReturnId(null);
         }}
         onSubmit={handleSubmitReturn}
-        transaction={selectedForReturn}
+        transactionId={selectedForReturnId}
       />
 
       <ConfirmTransactionDialog
