@@ -227,7 +227,7 @@ const TransactionDetailDialog: React.FC<TransactionDetailDialogProps> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {transaction.lines.map((line, index) => (
+                  {transaction.lines.map((line) => (
                     <TableRow key={line.id} hover>
                       <TableCell>
                         <Chip label={line.productCode} size="small" variant="outlined" />

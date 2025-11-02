@@ -6,7 +6,6 @@ import {
   Grid,
   Card,
   CardContent,
-  Button,
   Tabs,
   Tab,
   List,
@@ -23,7 +22,6 @@ import {
   Security as SecurityIcon,
   Business as BusinessIcon,
   Category as CategoryIcon,
-  Inventory as InventoryIcon,
   LocalShipping as ShippingIcon,
   ChevronRight as ChevronIcon,
 } from '@mui/icons-material';

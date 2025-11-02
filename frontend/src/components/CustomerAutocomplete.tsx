@@ -82,7 +82,7 @@ const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
     []
   );
 
-  const handleInputChange = (event: any, newInputValue: string) => {
+  const handleInputChange = (_event: any, newInputValue: string) => {
     setInputValue(newInputValue);
     if (newInputValue.length >= 2) {
       searchCustomers(newInputValue);
@@ -136,7 +136,7 @@ const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       value={value}
-      onChange={(event, newValue) => onChange(newValue)}
+      onChange={(_event, newValue) => onChange(newValue)}
       inputValue={inputValue}
       onInputChange={handleInputChange}
       options={options}

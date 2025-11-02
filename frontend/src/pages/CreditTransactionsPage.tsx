@@ -21,24 +21,20 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Tabs,
-  Tab,
   Tooltip,
-  Menu,
   MenuItem,
   FormControl,
   InputLabel,
   Select,
+  Divider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import ReceiptIcon from '@mui/icons-material/Receipt';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import UndoIcon from '@mui/icons-material/Undo';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import QuickCreditPickupDialog from '../components/QuickCreditPickupDialog';
 
 interface CreditTransaction {
@@ -92,8 +88,8 @@ const CreditTransactionsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [filterType, setFilterType] = useState<string>('ALL');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
+  const [_anchorEl, _setAnchorEl] = useState<null | HTMLElement>(null);
+  const [_selectedTransactionId, _setSelectedTransactionId] = useState<string | null>(null);
 
   useEffect(() => {
     loadTransactions();
@@ -139,12 +135,12 @@ const CreditTransactionsPage: React.FC = () => {
   };
 
   const handleQuickPickupSubmit = async (
-    customerId: string,
-    lines: Array<{ productCode: string; quantity: number; notes?: string }>,
-    transactionType: 'PICKUP' | 'RETURN',
-    performedBy: string,
-    performedByRole: string,
-    notes?: string
+    _customerId: string,
+    _lines: Array<{ productCode: string; quantity: number; notes?: string }>,
+    _transactionType: 'PICKUP' | 'RETURN',
+    _performedBy: string,
+    _performedByRole: string,
+    _notes?: string
   ) => {
     try {
       // TODO: Replace with actual API call
@@ -163,7 +159,7 @@ const CreditTransactionsPage: React.FC = () => {
       const data = await response.json();
       */
 
-      alert(`${transactionType === 'PICKUP' ? 'Paėmimas' : 'Grąžinimas'} sėkmingai sukurtas!`);
+      alert(`${_transactionType === 'PICKUP' ? 'Paėmimas' : 'Grąžinimas'} sėkmingai sukurtas!`);
       loadTransactions();
     } catch (error) {
       console.error('Failed to create transaction:', error);
@@ -220,7 +216,7 @@ const CreditTransactionsPage: React.FC = () => {
     }
   };
 
-  const handleConfirmTransaction = async (transactionId: string) => {
+  const handleConfirmTransaction = async (_transactionId: string) => {
     try {
       // TODO: Replace with actual API call
       /*
@@ -241,7 +237,7 @@ const CreditTransactionsPage: React.FC = () => {
     }
   };
 
-  const handleCancelTransaction = async (transactionId: string) => {
+  const handleCancelTransaction = async (_transactionId: string) => {
     const reason = prompt('Įveskite atšaukimo priežastį:');
     if (!reason) return;
 

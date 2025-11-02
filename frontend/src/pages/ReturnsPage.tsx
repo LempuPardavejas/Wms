@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Container,
@@ -17,8 +17,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  MenuItem,
   Grid,
   Card,
   CardContent,
@@ -36,17 +34,10 @@ import {
   Payment as RefundIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { returnService, orderService } from '../services/api';
+import { returnService } from '../services/api';
 import {
   Return,
   ReturnStatus,
-  RefundStatus,
-  CreateReturnRequest,
-  CreateReturnLineRequest,
-  Order,
-  ReturnReason,
-  InspectReturnLineRequest,
-  ProductCondition,
 } from '../types';
 
 export default function ReturnsPage() {
@@ -54,8 +45,8 @@ export default function ReturnsPage() {
   const [selectedReturn, setSelectedReturn] = useState<Return | null>(null);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const [openInspectionDialog, setOpenInspectionDialog] = useState(false);
-  const [openRefundDialog, setOpenRefundDialog] = useState(false);
+  const [_openInspectionDialog, _setOpenInspectionDialog] = useState(false);
+  const [_openRefundDialog, _setOpenRefundDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -81,7 +72,7 @@ export default function ReturnsPage() {
     },
   });
 
-  const { data: returnReasons } = useQuery({
+  const { data: _returnReasons } = useQuery({
     queryKey: ['returnReasons'],
     queryFn: async () => {
       const response = await returnService.getReturnReasons();
@@ -424,7 +415,7 @@ export default function ReturnsPage() {
           )}
           {selectedReturn?.status === ReturnStatus.RECEIVED && (
             <Button
-              onClick={() => setOpenInspectionDialog(true)}
+              onClick={() => _setOpenInspectionDialog(true)}
               color="primary"
             >
               Patikrinti
@@ -440,7 +431,7 @@ export default function ReturnsPage() {
                 Grąžinti į sandėlį
               </Button>
               <Button
-                onClick={() => setOpenRefundDialog(true)}
+                onClick={() => _setOpenRefundDialog(true)}
                 color="success"
                 startIcon={<RefundIcon />}
               >

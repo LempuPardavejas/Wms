@@ -35,6 +35,7 @@ interface ProductCodeInputProps {
   helperText?: string;
   required?: boolean;
   autoFocus?: boolean;
+  disabled?: boolean;
   onEnterPress?: () => void; // Callback for Enter key - for quick sequential entry
 }
 
@@ -58,6 +59,7 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
   helperText,
   required = false,
   autoFocus = false,
+  disabled = false,
   onEnterPress,
 }) => {
   const [open, setOpen] = useState(false);
@@ -98,7 +100,7 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
     [onChange]
   );
 
-  const handleInputChange = (event: any, newInputValue: string) => {
+  const handleInputChange = (_event: any, newInputValue: string) => {
     setInputValue(newInputValue);
     setValidCode(false);
 
@@ -109,7 +111,7 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
     }
   };
 
-  const handleChange = (event: any, newValue: Product | null) => {
+  const handleChange = (_event: any, newValue: Product | null) => {
     onChange(newValue);
     if (newValue) {
       setValidCode(true);
@@ -137,6 +139,7 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
   return (
     <Autocomplete
       fullWidth
+      disabled={disabled}
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}

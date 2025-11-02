@@ -7,7 +7,11 @@ module.exports = {
     '**/?(*.)+(spec|test).+(ts|tsx|js)'
   ],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react-jsx'
+      }
+    }],
   },
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
@@ -20,19 +24,12 @@ module.exports = {
     '!src/main.tsx',
     '!src/vite-env.d.ts'
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 70,
       functions: 70,
       lines: 70,
       statements: 70
-    }
-  },
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react-jsx'
-      }
     }
   }
 };

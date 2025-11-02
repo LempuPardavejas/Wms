@@ -17,7 +17,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRoles,
   requiredPermissions,
 }) => {
-  const { isAuthenticated, isLoading, user, hasRole, hasPermission } = useAuth();
+  const { isAuthenticated, isLoading, hasRole, hasPermission } = useAuth();
 
   // Show loading while checking auth
   if (isLoading) {

@@ -7,10 +7,6 @@ import {
   Card,
   CardContent,
   Button,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Chip,
 } from '@mui/material';
 import {
@@ -18,9 +14,7 @@ import {
   Inventory as InventoryIcon,
   LocalShipping as ShippingIcon,
   AssignmentReturn as ReturnIcon,
-  TrendingUp as TrendingUpIcon,
   Warning as WarningIcon,
-  CheckCircle as CheckIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
