@@ -75,6 +75,8 @@ const QuickReturnDialog: React.FC<QuickReturnDialogProps> = ({
     if (transactionId && open) {
       loadTransaction();
     }
+    // Note: loadTransaction is stable and doesn't need to be in deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionId, open]);
 
   const loadTransaction = async () => {

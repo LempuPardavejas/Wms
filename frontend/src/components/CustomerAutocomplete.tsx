@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Autocomplete,
   TextField,
@@ -60,8 +60,9 @@ const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
   const [inputValue, setInputValue] = useState('');
 
   // Debounced search function - PERFORMANCE OPTIMIZATION
-  const searchCustomers = useCallback(
-    debounce(async (query: string) => {
+  // Note: useMemo is used instead of useCallback for debounced functions
+  const searchCustomers = React.useMemo(
+    () => debounce(async (query: string) => {
       if (!query || query.length < 2) {
         setOptions([]);
         setLoading(false);
@@ -82,7 +83,7 @@ const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
     []
   );
 
-  const handleInputChange = (_event: any, newInputValue: string) => {
+  const handleInputChange = (_event: React.SyntheticEvent, newInputValue: string) => {
     setInputValue(newInputValue);
     if (newInputValue.length >= 2) {
       searchCustomers(newInputValue);

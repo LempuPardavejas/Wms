@@ -110,7 +110,7 @@ const QuickCreditPickupDialog: React.FC<QuickCreditPickupDialogProps> = ({
   const [performedByRole, setPerformedByRole] = useState<string>('EMPLOYEE');
 
   const quantityInputRef = useRef<HTMLInputElement>(null);
-  const productInputRef = useRef<any>(null);
+  const productInputRef = useRef<HTMLDivElement>(null);
 
   // Auto-focus quantity when product selected
   useEffect(() => {
