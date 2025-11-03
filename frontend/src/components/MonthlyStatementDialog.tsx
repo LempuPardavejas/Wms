@@ -109,7 +109,7 @@ const MonthlyStatementDialog: React.FC<MonthlyStatementDialogProps> = ({
     setLoading(true);
     try {
       const data = await getMonthlyStatement(customer.id, year, month);
-      setTransactions(data as any);
+      setTransactions(data as unknown as StatementTransaction[]);
       setShowStatement(true);
     } catch (error) {
       console.error('Failed to generate statement:', error);

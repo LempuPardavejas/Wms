@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Autocomplete,
   TextField,
@@ -70,8 +70,9 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounced search function - PERFORMANCE OPTIMIZATION
-  const searchProducts = useCallback(
-    debounce(async (query: string) => {
+  // Note: useMemo is used instead of useCallback for debounced functions
+  const searchProducts = React.useMemo(
+    () => debounce(async (query: string) => {
       if (!query || query.length < 2) {
         setOptions([]);
         setLoading(false);
@@ -100,7 +101,7 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
     [onChange]
   );
 
-  const handleInputChange = (_event: any, newInputValue: string) => {
+  const handleInputChange = (_event: React.SyntheticEvent, newInputValue: string) => {
     setInputValue(newInputValue);
     setValidCode(false);
 
@@ -111,7 +112,7 @@ const ProductCodeInput: React.FC<ProductCodeInputProps> = ({
     }
   };
 
-  const handleChange = (_event: any, newValue: Product | null) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: Product | null) => {
     onChange(newValue);
     if (newValue) {
       setValidCode(true);

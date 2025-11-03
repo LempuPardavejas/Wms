@@ -54,8 +54,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Navigate to appropriate route based on role
       const defaultRoute = authService.getDefaultRoute(response.user);
       navigate(defaultRoute);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Prisijungti nepavyko');
+    } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Prisijungti nepavyko';
+      throw new Error(errorMessage);
     }
   };
 
@@ -94,6 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {

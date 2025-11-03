@@ -4,14 +4,12 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
-// Mock import.meta
-(globalThis as any).import = {
-  meta: {
-    env: {
-      VITE_API_URL: '/api'
-    }
+// Mock config module
+jest.mock('./config', () => ({
+  config: {
+    apiUrl: '/api'
   }
-};
+}));
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -29,10 +27,18 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock localStorage
-const localStorageMock = {
+interface LocalStorageMock {
+  getItem: jest.Mock;
+  setItem: jest.Mock;
+  removeItem: jest.Mock;
+  clear: jest.Mock;
+}
+
+const localStorageMock: LocalStorageMock = {
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-(globalThis as any).localStorage = localStorageMock;
+
+(globalThis as unknown as { localStorage: LocalStorageMock }).localStorage = localStorageMock;

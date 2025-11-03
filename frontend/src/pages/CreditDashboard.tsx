@@ -219,7 +219,7 @@ const CreditDashboard: React.FC = () => {
     setSelectedForReturnId(null);
   };
 
-  const handleProductSelect = (_product: any) => {
+  const handleProductSelect = () => {
     // Open pickup dialog with pre-selected product
     // TODO: Implement pre-selection in QuickCreditPickupDialog
     setPickupDialogOpen(true);
@@ -437,7 +437,7 @@ const CreditDashboard: React.FC = () => {
                           color="success"
                           startIcon={<CheckCircleIcon />}
                           onClick={() => {
-                            setSelectedTransaction(transaction as any);
+                            setSelectedTransaction(transaction as unknown as CreditTransactionResponse);
                             setConfirmDialogOpen(true);
                           }}
                           size="large"

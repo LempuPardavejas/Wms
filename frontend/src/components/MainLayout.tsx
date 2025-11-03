@@ -63,7 +63,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   // Build navigation items based on user roles
-  const navigationItems = [
+  interface NavigationItem {
+    label: string;
+    icon: React.ReactElement;
+    path: string;
+  }
+
+  const navigationItems: NavigationItem[] = [
     hasRole('ADMIN') && {
       label: 'Dashboard',
       icon: <DashboardIcon />,
@@ -99,7 +105,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       icon: <SettingsIcon />,
       path: '/admin',
     },
-  ].filter(Boolean);
+  ].filter((item): item is NavigationItem => Boolean(item));
 
   const drawer = (
     <Box>
@@ -110,7 +116,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </Toolbar>
       <Divider />
       <List sx={{ pt: 2 }}>
-        {navigationItems.map((item: any) => (
+        {navigationItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ px: 1 }}>
             <ListItemButton
               selected={location.pathname === item.path}
@@ -165,7 +171,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {(navigationItems.find((item: any) => item && item.path === location.pathname) as any)?.label ||
+            {navigationItems.find((item) => item.path === location.pathname)?.label ||
               'Dashboard'}
           </Typography>
 

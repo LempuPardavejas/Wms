@@ -92,7 +92,7 @@ const QuickOrderDialog: React.FC<QuickOrderDialogProps> = ({
   const [notes, setNotes] = useState<string>('');
 
   const quantityInputRef = useRef<HTMLInputElement>(null);
-  const productInputRef = useRef<any>(null);
+  const productInputRef = useRef<HTMLDivElement>(null);
 
   // Auto-focus quantity when product selected
   useEffect(() => {

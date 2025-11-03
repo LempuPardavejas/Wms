@@ -38,8 +38,11 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(credentials);
-    } catch (err: any) {
-      setError(err.message || 'Neteisingas vartotojo vardas arba slaptažodis');
+    } catch (err) {
+      const errorMessage = err instanceof Error
+        ? err.message
+        : 'Neteisingas vartotojo vardas arba slaptažodis';
+      setError(errorMessage);
     }
   };
 

@@ -136,7 +136,7 @@ const SimpleCreditPortal: React.FC = () => {
   };
 
   const handleConfirmPending = (transaction: CreditTransactionSummaryResponse) => {
-    setSelectedTransaction(transaction as any);
+    setSelectedTransaction(transaction as unknown as CreditTransactionResponse);
     setConfirmDialogOpen(true);
   };
 

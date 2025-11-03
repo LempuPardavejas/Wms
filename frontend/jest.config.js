@@ -31,5 +31,12 @@ module.exports = {
       lines: 70,
       statements: 70
     }
+  },
+  globals: {
+    'import.meta': {
+      env: {
+        VITE_API_URL: '/api'
+      }
+    }
   }
 };
